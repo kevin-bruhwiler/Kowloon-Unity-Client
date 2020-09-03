@@ -14,6 +14,7 @@ permissions and limitations under the License.
 
 using System;
 using UnityEngine;
+using UnityEngine.UI;
 
 /// <summary>
 /// Controls the player's movement in virtual reality.
@@ -131,6 +132,11 @@ public class OVRPlayerController : MonoBehaviour
 	/// Rotation defaults to secondary thumbstick. You can allow either here. Note that this won't behave well if EnableLinearMovement is true.
 	/// </summary>
 	public bool RotationEitherThumbstick = false;
+
+	/// <summary>
+	/// Don't move player while UI is active. Movement controls are also used to navigate UI
+	/// </summary>
+	public ScrollRect scrollRect;
 
 	protected CharacterController Controller = null;
 	protected OVRCameraRig CameraRig = null;
@@ -317,7 +323,7 @@ public class OVRPlayerController : MonoBehaviour
 		if (HaltUpdateMovement)
 			return;
 
-		if (EnableLinearMovement)
+		if (EnableLinearMovement && scrollRect == null)
 		{
 			bool moveForward = Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow);
 			bool moveLeft = Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow);
@@ -405,7 +411,7 @@ public class OVRPlayerController : MonoBehaviour
 									   Vector3.right);
 		}
 
-		if (EnableRotation)
+		if (EnableRotation && scrollRect == null)
 		{
 			Vector3 euler = transform.rotation.eulerAngles;
 			float rotateInfluence = SimulationRate * Time.deltaTime * RotationAmount * RotationScaleMultiplier;
