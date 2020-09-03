@@ -207,6 +207,10 @@ PrefabInstance:
       propertyPath: useProfileData
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 11400010, guid: ce816f2e6abb0504092c23ed9b970dfd, type: 3}
+      propertyPath: scrollRect
+      value: 
+      objectReference: {fileID: 1776057763}
     - target: {fileID: 11400020, guid: ce816f2e6abb0504092c23ed9b970dfd, type: 3}
       propertyPath: usePerEyeCameras
       value: 0
@@ -2126,7 +2130,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   scrollRect: {fileID: 1776057763}
-  player: {fileID: 595030079}
 --- !u!4 &1779243467 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 456902, guid: ba1fa4a8c66106b4988c88fe4b8e8502,
