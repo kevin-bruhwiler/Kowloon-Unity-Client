@@ -9,6 +9,8 @@ public class ScrollController : MonoBehaviour
 
     public PopulateContent tab;
 
+    private long tabChangeTime = 0;
+
 
     // Start is called before the first frame update
     void Start()
@@ -28,8 +30,13 @@ public class ScrollController : MonoBehaviour
         // Change "tabs" with right dpad
         if (scrollRect != null && scrollRect.IsActive() && OVRInput.Get(OVRInput.Axis2D.SecondaryThumbstick)[0] != 0)
         {
-            Clear();
-            tab.Populate();
+            if (System.DateTime.Now.Ticks - tabChangeTime > 2000000)
+            {
+                tabChangeTime = System.DateTime.Now.Ticks;
+                Clear();
+                tab.Populate();
+            }
+            
         }
     }
 

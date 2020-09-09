@@ -136,7 +136,7 @@ public class OVRPlayerController : MonoBehaviour
 	/// <summary>
 	/// Don't move player while UI is active. Movement controls are also used to navigate UI
 	/// </summary>
-	public ScrollRect scrollRect;
+	public Canvas ui;
 
 	protected CharacterController Controller = null;
 	protected OVRCameraRig CameraRig = null;
@@ -227,6 +227,10 @@ public class OVRPlayerController : MonoBehaviour
 
 		if (Input.GetKeyDown(KeyCode.E))
 			buttonRotation += RotationRatchet;
+
+		//Activate or deactivate UI
+		if (OVRInput.GetUp(OVRInput.RawButton.Y))
+			ui.enabled = !ui.enabled;
 	}
 
 	protected virtual void UpdateController()
@@ -323,7 +327,7 @@ public class OVRPlayerController : MonoBehaviour
 		if (HaltUpdateMovement)
 			return;
 
-		if (EnableLinearMovement && scrollRect == null)
+		if (EnableLinearMovement && !ui.enabled)
 		{
 			bool moveForward = Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow);
 			bool moveLeft = Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow);
@@ -411,7 +415,7 @@ public class OVRPlayerController : MonoBehaviour
 									   Vector3.right);
 		}
 
-		if (EnableRotation && scrollRect == null)
+		if (EnableRotation && !ui.enabled)
 		{
 			Vector3 euler = transform.rotation.eulerAngles;
 			float rotateInfluence = SimulationRate * Time.deltaTime * RotationAmount * RotationScaleMultiplier;
