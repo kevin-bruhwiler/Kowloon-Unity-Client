@@ -131,6 +131,20 @@ public class OVRGrabber : MonoBehaviour
     virtual public void Update()
     {
         alreadyUpdated = false;
+        //Change position/size of held object
+        Vector2 inp = OVRInput.Get(OVRInput.Axis2D.SecondaryThumbstick);
+        if (inp.magnitude != 0) 
+        {
+            m_grabbedObjectPosOff = m_grabbedObjectPosOff += new Vector3(0, -inp[0] * 0.01f, inp[1] * 0.01f);
+        }
+        if (OVRInput.Get(OVRInput.Button.Two))
+        {
+            m_grabbedObj.transform.localScale = m_grabbedObj.transform.localScale += new Vector3(0.01f, 0.01f, 0.01f);
+        }
+        if (OVRInput.Get(OVRInput.Button.One))
+        {
+            m_grabbedObj.transform.localScale = m_grabbedObj.transform.localScale -= new Vector3(0.01f, 0.01f, 0.01f);
+        }
     }
 
     virtual public void FixedUpdate()

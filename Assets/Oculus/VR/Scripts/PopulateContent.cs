@@ -20,6 +20,12 @@ public class PopulateContent : MonoBehaviour
 
 	public GameObject view;
 
+	List<GameObject> elements = new List<GameObject>();
+
+	long grabTime = 0;
+
+	GameObject changedElem = null;
+
 	void Start()
 	{
 		Populate();
@@ -27,7 +33,30 @@ public class PopulateContent : MonoBehaviour
 
 	void Update()
 	{
+		foreach(GameObject el in elements) 
+		{
+			el.transform.Rotate(0, 30 * Time.deltaTime, 0);
 
+			if(changedElem == null && System.DateTime.Now.Ticks - grabTime > 20000000 && el.transform.GetComponent<OVRGrabbable>().isGrabbed)
+            {
+				grabTime = System.DateTime.Now.Ticks;
+
+				//Grab object from UI - replace with duplicate
+				newObj = (GameObject)Instantiate(el, el.transform, true);
+				newObj.transform.parent = transform;
+				changedElem = el;
+			}
+		}
+
+		if(changedElem != null)
+        {
+			elements[elements.FindIndex(ind => ind.Equals(changedElem))] = newObj;
+			changedElem.transform.parent = null;
+			changedElem.GetComponent<Rigidbody>().WakeUp();
+			changedElem.GetComponent<Rigidbody>().isKinematic = false;
+
+			changedElem = null;
+		}
 	}
 
 	public void Populate()
@@ -42,13 +71,25 @@ public class PopulateContent : MonoBehaviour
 
 			// Create new instances of our prefab until we've created as many as we specified
 			newObj = (GameObject)Instantiate(prefab, pos, transform.rotation);
-			//newObj.transform.position = Math3d.ProjectPointOnPlane(transform.position, transform.up, newObj.transform.position);
-			newObj.transform.parent = transform;
 
+			newObj.transform.Rotate(0, Random.Range(0, 360), 0); //initialize at different y rotations (for aesthetics)
+			newObj.transform.parent = transform;
 			newObj.transform.localScale = new Vector3(objScale, objScale, objScale);
 
 			// Randomize the color of our image
 			newObj.GetComponent<Renderer>().material.color = Random.ColorHSV();
+
+			elements.Add(newObj);
 		}
+	}
+
+	public void Clear()
+    {
+		foreach (Transform child in transform)
+		{
+			Destroy(child.gameObject);
+		}
+
+		elements = new List<GameObject>();
 	}
 }

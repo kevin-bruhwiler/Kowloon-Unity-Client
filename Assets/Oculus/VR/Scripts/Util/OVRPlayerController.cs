@@ -137,6 +137,7 @@ public class OVRPlayerController : MonoBehaviour
 	/// Don't move player while UI is active. Movement controls are also used to navigate UI
 	/// </summary>
 	public Canvas ui;
+	public PopulateContent uiContents;
 
 	protected CharacterController Controller = null;
 	protected OVRCameraRig CameraRig = null;
@@ -230,7 +231,13 @@ public class OVRPlayerController : MonoBehaviour
 
 		//Activate or deactivate UI
 		if (OVRInput.GetUp(OVRInput.RawButton.Y))
+		{
+			if(ui.enabled)
+				uiContents.Clear();
+			else
+				uiContents.Populate();
 			ui.enabled = !ui.enabled;
+		}
 	}
 
 	protected virtual void UpdateController()
