@@ -232,11 +232,11 @@ public class OVRPlayerController : MonoBehaviour
 		//Activate or deactivate UI
 		if (OVRInput.GetUp(OVRInput.RawButton.Y))
 		{
-			if(ui.enabled)
+			ui.enabled = !ui.enabled;
+			if (!ui.enabled)
 				uiContents.Clear();
 			else
 				uiContents.Populate();
-			ui.enabled = !ui.enabled;
 		}
 	}
 

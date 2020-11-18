@@ -8,11 +8,15 @@ public class PopulateContent : MonoBehaviour
 {
 	public GameObject prefab; // This is our prefab object that will be exposed in the inspector
 
+	public Canvas canvas;
+
 	GameObject newObj;
 
 	public int numColumns;
 
-	public float spacing;
+	public float horizontalSpacing;
+
+	public float verticalSpacing;
 
 	public float objScale;
 
@@ -25,6 +29,8 @@ public class PopulateContent : MonoBehaviour
 	long grabTime = 0;
 
 	GameObject changedElem = null;
+
+	private Object[] items;
 
 	void Start()
 	{
@@ -61,12 +67,39 @@ public class PopulateContent : MonoBehaviour
 
 	public void Populate()
 	{
+		if (!canvas.enabled)
+			return;
+
+		transform.parent.gameObject.GetComponent<TextMesh>().text = "Basic Objects";
+
+		items = Resources.LoadAll("Basic Objects", typeof(GameObject));
+
+		for (int i = 0; i < items.Length; i++)
+		{
+			float x = 8 + horizontalSpacing * i % (horizontalSpacing * numColumns);
+			float y = -8 - verticalSpacing * Mathf.Floor(i / numColumns);
+			Vector3 pos = view.transform.TransformPoint(new Vector3(x, y, 0));
+
+			// Create new instances of our prefab until we've created as many as we specified
+			newObj = (GameObject)Instantiate(items[i], pos, transform.rotation);
+
+			newObj.transform.Rotate(0, Random.Range(0, 360), 0); //initialize at different y rotations (for aesthetics)
+			newObj.transform.parent = transform;
+			newObj.transform.localScale = new Vector3(objScale, objScale, objScale);
+
+			// Randomize the color of our image
+			newObj.GetComponent<Renderer>().material.color = Random.ColorHSV();
+
+			elements.Add(newObj);
+		}
+
+		/*
 		GameObject newObj;
 
 		for (int i = 0; i < numberToCreate; i++)
 		{
-			float x = spacing * i % (spacing * numColumns);
-			float y = -spacing * Mathf.Floor(i / numColumns);
+			float x = 8 + horizontalSpacing * i % (horizontalSpacing * numColumns);
+			float y = -8 - verticalSpacing * Mathf.Floor(i / numColumns);
 			Vector3 pos = view.transform.TransformPoint(new Vector3(x, y, 0));
 
 			// Create new instances of our prefab until we've created as many as we specified
@@ -81,10 +114,12 @@ public class PopulateContent : MonoBehaviour
 
 			elements.Add(newObj);
 		}
+		*/
 	}
 
 	public void Clear()
     {
+		transform.parent.gameObject.GetComponent<TextMesh>().text = "";
 		foreach (Transform child in transform)
 		{
 			Destroy(child.gameObject);
