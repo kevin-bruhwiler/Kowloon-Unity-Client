@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.UIElements;
+using System.Linq;
 
 public class PopulateContent : MonoBehaviour
 {
@@ -31,10 +32,15 @@ public class PopulateContent : MonoBehaviour
 	GameObject changedElem = null;
 
 	private Object[] items;
+	private string[] menus = new string[2] { "Basic Objects", "Polygon" };
+	private int idx = 0;
+	private int row = 0;
+	private int resourcesSize = 0;
 
 	void Start()
 	{
 		Populate();
+
 	}
 
 	void Update()
@@ -70,9 +76,11 @@ public class PopulateContent : MonoBehaviour
 		if (!canvas.enabled)
 			return;
 
-		transform.parent.gameObject.GetComponent<TextMesh>().text = "Basic Objects";
+		transform.parent.gameObject.GetComponent<TextMesh>().text = menus[idx];
 
-		items = Resources.LoadAll("Basic Objects", typeof(GameObject));
+		items = Resources.LoadAll(menus[idx], typeof(GameObject));
+		resourcesSize = items.Length;
+		items = items.Skip(row).Take(numberToCreate).Cast<Object>().ToArray();
 
 		for (int i = 0; i < items.Length; i++)
 		{
@@ -85,7 +93,9 @@ public class PopulateContent : MonoBehaviour
 
 			newObj.transform.Rotate(0, Random.Range(0, 360), 0); //initialize at different y rotations (for aesthetics)
 			newObj.transform.parent = transform;
-			newObj.transform.localScale = new Vector3(objScale, objScale, objScale);
+			var MySize = newObj.GetComponent<Renderer>().bounds.size;
+			var MaxSize = 1 / Mathf.Max(MySize.x, Mathf.Max(MySize.y, MySize.z));
+			newObj.transform.localScale = objScale * new Vector3(MaxSize, MaxSize, MaxSize); ;
 
 			// Randomize the color of our image
 			newObj.GetComponent<Renderer>().material.color = Random.ColorHSV();
@@ -115,6 +125,22 @@ public class PopulateContent : MonoBehaviour
 			elements.Add(newObj);
 		}
 		*/
+	}
+
+	public void IncrementIndex(bool pos)
+    {
+		if (pos)
+			idx = (((idx + 1) % menus.Length) + menus.Length) % menus.Length;
+		else
+			idx = (((idx - 1) % menus.Length) + menus.Length) % menus.Length;
+	}
+
+	public void IncrementRow(bool pos)
+    {
+		if (pos) 
+			row = Mathf.Max((row - numColumns) % resourcesSize, 0);
+		else
+			row = Mathf.Min((row + numColumns) % resourcesSize, resourcesSize);
 	}
 
 	public void Clear()
