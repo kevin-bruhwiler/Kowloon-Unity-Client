@@ -31,6 +31,8 @@ public class PopulateContent : MonoBehaviour
 
 	GameObject changedElem = null;
 
+	public ColorPickerTriangle colorPicker;
+
 	private Object[] items;
 	private string[] menus = new string[2] { "Basic Objects", "Polygon" };
 	private int idx = 0;
@@ -98,33 +100,32 @@ public class PopulateContent : MonoBehaviour
 			newObj.transform.localScale = objScale * new Vector3(MaxSize, MaxSize, MaxSize); ;
 
 			// Randomize the color of our image
-			newObj.GetComponent<Renderer>().material.color = Random.ColorHSV();
+			newObj.GetComponent<Renderer>().material.color = colorPicker.TheColor;
 
 			elements.Add(newObj);
 		}
+	}
 
-		/*
-		GameObject newObj;
-
-		for (int i = 0; i < numberToCreate; i++)
+	public void UpdateColor()
+	{
+		foreach (GameObject el in elements)
 		{
-			float x = 8 + horizontalSpacing * i % (horizontalSpacing * numColumns);
-			float y = -8 - verticalSpacing * Mathf.Floor(i / numColumns);
-			Vector3 pos = view.transform.TransformPoint(new Vector3(x, y, 0));
-
-			// Create new instances of our prefab until we've created as many as we specified
-			newObj = (GameObject)Instantiate(prefab, pos, transform.rotation);
-
-			newObj.transform.Rotate(0, Random.Range(0, 360), 0); //initialize at different y rotations (for aesthetics)
-			newObj.transform.parent = transform;
-			newObj.transform.localScale = new Vector3(objScale, objScale, objScale);
-
-			// Randomize the color of our image
-			newObj.GetComponent<Renderer>().material.color = Random.ColorHSV();
-
-			elements.Add(newObj);
+			el.GetComponent<Renderer>().material.color = colorPicker.TheColor;
 		}
-		*/
+	}
+
+	public void Enable()
+    {
+		canvas.enabled = true;
+		colorPicker.gameObject.SetActive(true);
+		Populate();
+	}
+
+	public void Disable()
+	{
+		canvas.enabled = false;
+		colorPicker.gameObject.SetActive(false);
+		Clear();
 	}
 
 	public void IncrementIndex(bool pos)
