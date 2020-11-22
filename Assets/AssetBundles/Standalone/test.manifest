@@ -1,0 +1,38 @@
+ManifestFileVersion: 0
+CRC: 3966196105
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 1fe4cd0b290bdcf3ec8893b3bc64b082
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 6d1a6e062de72fbc70c057d5b43c0b18
+HashAppended: 0
+ClassTypes:
+- Class: 1
+  Script: {instanceID: 0}
+- Class: 4
+  Script: {instanceID: 0}
+- Class: 21
+  Script: {instanceID: 0}
+- Class: 23
+  Script: {instanceID: 0}
+- Class: 28
+  Script: {instanceID: 0}
+- Class: 33
+  Script: {instanceID: 0}
+- Class: 43
+  Script: {instanceID: 0}
+- Class: 48
+  Script: {instanceID: 0}
+- Class: 54
+  Script: {instanceID: 0}
+- Class: 64
+  Script: {instanceID: 0}
+- Class: 114
+  Script: {fileID: 11500000, guid: 02d61468f8b77ae4b92c344bc9a600fb, type: 3}
+- Class: 115
+  Script: {instanceID: 0}
+Assets:
+- Assets/PolygonStarter/Prefabs/Characters/SM_Bean_Town_Female_01.prefab
+Dependencies: []

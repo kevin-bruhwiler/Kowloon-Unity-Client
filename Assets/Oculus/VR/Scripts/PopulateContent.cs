@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.UIElements;
 using System.Linq;
+using System.IO;
 
 public class PopulateContent : MonoBehaviour
 {
@@ -34,7 +35,7 @@ public class PopulateContent : MonoBehaviour
 	public ColorPickerTriangle colorPicker;
 
 	private Object[] items;
-	private string[] menus = new string[2] { "Basic Objects", "Polygon" };
+	private string[] menus = new string[3] { "Basic Objects", "Polygon", "Custom Prefabs"};
 	private int idx = 0;
 	private int row = 0;
 	private int resourcesSize = 0;
@@ -80,30 +81,74 @@ public class PopulateContent : MonoBehaviour
 
 		transform.parent.gameObject.GetComponent<TextMesh>().text = menus[idx];
 
-		items = Resources.LoadAll(menus[idx], typeof(GameObject));
-		resourcesSize = items.Length;
-		items = items.Skip(row).Take(numberToCreate).Cast<Object>().ToArray();
+		if (menus[idx] == "Custom Prefabs")
+        {
+			string path = Application.persistentDataPath + "/CustomPrefabs";
+			if (!Directory.Exists(path))
+				Directory.CreateDirectory(path);
 
-		for (int i = 0; i < items.Length; i++)
-		{
-			float x = 8 + horizontalSpacing * i % (horizontalSpacing * numColumns);
-			float y = -8 - verticalSpacing * Mathf.Floor(i / numColumns);
-			Vector3 pos = view.transform.TransformPoint(new Vector3(x, y, 0));
+			DirectoryInfo dir = new DirectoryInfo(path);
+			FileInfo[] info = dir.GetFiles("*.*");
+			for (int i = 0; i < info.Length; i++)
+			{
+				var lab = AssetBundle.LoadFromFile(info[i].FullName);
 
-			// Create new instances of our prefab until we've created as many as we specified
-			newObj = (GameObject)Instantiate(items[i], pos, transform.rotation);
+				if (lab == null)
+					continue;
 
-			newObj.transform.Rotate(0, Random.Range(0, 360), 0); //initialize at different y rotations (for aesthetics)
-			newObj.transform.parent = transform;
-			var MySize = newObj.GetComponent<Renderer>().bounds.size;
-			var MaxSize = 1 / Mathf.Max(MySize.x, Mathf.Max(MySize.y, MySize.z));
-			newObj.transform.localScale = objScale * new Vector3(MaxSize, MaxSize, MaxSize); ;
+				float x = 8 + horizontalSpacing * i % (horizontalSpacing * numColumns);
+				float y = -8 - verticalSpacing * Mathf.Floor(i / numColumns);
+				Vector3 pos = view.transform.TransformPoint(new Vector3(x, y, 0));
 
-			// Randomize the color of our image
-			newObj.GetComponent<Renderer>().material.color = colorPicker.TheColor;
+				foreach (string assetName in lab.GetAllAssetNames())
+				{
+					if (assetName.EndsWith(".prefab"))
+                    {
+						var prefab = lab.LoadAsset<GameObject>(assetName);
+						newObj = (GameObject)Instantiate(prefab, pos, transform.rotation);
 
-			elements.Add(newObj);
+						newObj.GetComponent<Rigidbody>().useGravity = false;
+						newObj.GetComponent<Rigidbody>().isKinematic = true;
+
+						ConfigureNewObject(newObj);
+					}
+				}
+
+				lab.Unload(false);
+			}
+		} else {
+			items = Resources.LoadAll(menus[idx], typeof(GameObject));
+			resourcesSize = items.Length;
+			items = items.Skip(row).Take(numberToCreate).Cast<Object>().ToArray();
+
+			for (int i = 0; i < items.Length; i++)
+			{
+				float x = 8 + horizontalSpacing * i % (horizontalSpacing * numColumns);
+				float y = -8 - verticalSpacing * Mathf.Floor(i / numColumns);
+				Vector3 pos = view.transform.TransformPoint(new Vector3(x, y, 0));
+
+				// Create new instances of our prefab until we've created as many as we specified
+				newObj = (GameObject)Instantiate(items[i], pos, transform.rotation);
+
+				ConfigureNewObject(newObj);
+
+				elements.Add(newObj);
+			}
 		}
+	}
+
+	private void ConfigureNewObject(GameObject newObj)
+    {
+		newObj.transform.Rotate(0, Random.Range(0, 360), 0); //initialize at different y rotations (for aesthetics)
+		newObj.transform.parent = transform;
+		var MySize = newObj.GetComponent<Renderer>().bounds.size;
+		var MaxSize = 1 / Mathf.Max(MySize.x, Mathf.Max(MySize.y, MySize.z));
+		newObj.transform.localScale = objScale * new Vector3(MaxSize, MaxSize, MaxSize); ;
+
+		// Randomize the color of our image
+		newObj.GetComponent<Renderer>().material.color = colorPicker.TheColor;
+
+		elements.Add(newObj);
 	}
 
 	public void UpdateColor()
