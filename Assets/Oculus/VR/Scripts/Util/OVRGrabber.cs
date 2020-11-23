@@ -79,6 +79,8 @@ public class OVRGrabber : MonoBehaviour
 	protected Dictionary<OVRGrabbable, int> m_grabCandidates = new Dictionary<OVRGrabbable, int>();
 	protected bool m_operatingWithoutOVRCameraRig = true;
 
+    public OVRPlayerController playerController;
+
     /// <summary>
     /// The currently grabbed object.
     /// </summary>
@@ -132,18 +134,18 @@ public class OVRGrabber : MonoBehaviour
     {
         alreadyUpdated = false;
         //Change position/size of held object
-        Vector2 inp = OVRInput.Get(OVRInput.Axis2D.SecondaryThumbstick);
-        if (inp.magnitude != 0) 
+        if (m_grabbedObj != null)
         {
-            m_grabbedObjectPosOff = m_grabbedObjectPosOff += new Vector3(0, -inp[0] * 0.01f, inp[1] * 0.01f);
-        }
-        if (OVRInput.Get(OVRInput.Button.Two))
-        {
-            m_grabbedObj.transform.localScale = m_grabbedObj.transform.localScale += new Vector3(0.01f, 0.01f, 0.01f);
-        }
-        if (OVRInput.Get(OVRInput.Button.One))
-        {
-            m_grabbedObj.transform.localScale = m_grabbedObj.transform.localScale -= new Vector3(0.01f, 0.01f, 0.01f);
+            Vector2 inp = OVRInput.Get(OVRInput.Axis2D.SecondaryThumbstick);
+            float movementSpeed = m_grabbedObj.transform.lossyScale.magnitude;
+            if (inp.magnitude != 0)
+                m_grabbedObjectPosOff += new Vector3(0, 0, inp[1] * 0.02f * movementSpeed) + transform.InverseTransformDirection(new Vector3(inp[0] * 0.02f * movementSpeed, 0, 0));
+
+            if (OVRInput.Get(OVRInput.Button.Two))
+                m_grabbedObj.transform.localScale = m_grabbedObj.transform.localScale + new Vector3(0.02f, 0.02f, 0.02f);
+
+            if (OVRInput.Get(OVRInput.Button.One))
+                m_grabbedObj.transform.localScale = m_grabbedObj.transform.localScale - new Vector3(0.02f, 0.02f, 0.02f);
         }
     }
 
@@ -250,8 +252,10 @@ public class OVRGrabber : MonoBehaviour
 		OVRGrabbable closestGrabbable = null;
         Collider closestGrabbableCollider = null;
 
+        playerController.EnableRotation = false;
+
         // Iterate grab candidates and find the closest grabbable candidate
-		foreach (OVRGrabbable grabbable in m_grabCandidates.Keys)
+        foreach (OVRGrabbable grabbable in m_grabCandidates.Keys)
         {
             bool canGrab = !(grabbable.isGrabbed && !grabbable.allowOffhandGrab);
             if (!canGrab)
@@ -381,6 +385,11 @@ public class OVRGrabber : MonoBehaviour
         m_grabbedObj.GrabEnd(linearVelocity, angularVelocity);
         if(m_parentHeldObject) m_grabbedObj.transform.parent = null;
         SetPlayerIgnoreCollision(m_grabbedObj.gameObject, false);
+        Destroy(m_grabbedObj.GetComponent<OVRGrabbable>());
+        Destroy(m_grabbedObj.GetComponent<Rigidbody>());
+        if (m_grabbedObj.GetComponent<MeshCollider>() != null)
+            m_grabbedObj.GetComponent<MeshCollider>().convex = false;
+        playerController.EnableRotation = true;
         m_grabbedObj = null;
     }
 

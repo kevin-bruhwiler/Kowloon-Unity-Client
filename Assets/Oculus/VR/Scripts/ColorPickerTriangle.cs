@@ -3,7 +3,7 @@ using System.Collections;
 
 public class ColorPickerTriangle : MonoBehaviour {
 
-    public Color TheColor = Color.cyan;
+    public Color TheColor = Color.white;
 
     const float MainRadius = .8f;
     const float CRadius = .5f;
@@ -32,7 +32,6 @@ public class ColorPickerTriangle : MonoBehaviour {
 	void Awake () {
         float h, s, v;
         Color.RGBToHSV(TheColor, out h, out s, out v);
-        //Debug.Log("HSV = " + v.ToString() + "," + h.ToString() + "," + v.ToString() + ", color = " + TheColor.ToString());
         MyPlane = new Plane(transform.TransformDirection(Vector3.forward), transform.position);
         RPoints = new Vector3[3];
         SetTrianglePoints();
@@ -42,9 +41,6 @@ public class ColorPickerTriangle : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        //CheckTrianglePosition();
-        //CheckCirclePosition();
-
         if (!MousePressed)
         {
             if (OVRInput.Get(OVRInput.Axis1D.SecondaryHandTrigger) > 0 && OVRInput.Get(OVRInput.Axis1D.SecondaryIndexTrigger) == 0)
@@ -86,7 +82,7 @@ public class ColorPickerTriangle : MonoBehaviour {
     private bool HasIntersection()
     {
         MyPlane = new Plane(transform.TransformDirection(Vector3.forward), transform.position);
-        Ray ray = new Ray(rightHandAnchor.transform.position + new Vector3(0, .05f, 0), rightHandAnchor.transform.forward); //Camera.main.ScreenPointToRay(Input.mousePosition);
+        Ray ray = new Ray(rightHandAnchor.transform.position + rightHandAnchor.transform.TransformDirection(new Vector3(0.05f, 0, 0)), rightHandAnchor.transform.forward);
         float rayDistance;
         if (MyPlane.Raycast(ray, out rayDistance))
         {

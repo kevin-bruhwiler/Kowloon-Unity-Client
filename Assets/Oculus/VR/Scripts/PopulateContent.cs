@@ -55,16 +55,17 @@ public class PopulateContent : MonoBehaviour
 			if(changedElem == null && System.DateTime.Now.Ticks - grabTime > 20000000 && el.transform.GetComponent<OVRGrabbable>().isGrabbed)
             {
 				grabTime = System.DateTime.Now.Ticks;
-
-				//Grab object from UI - replace with duplicate
-				newObj = (GameObject)Instantiate(el, el.transform, true);
-				newObj.transform.parent = transform;
 				changedElem = el;
+				break;
 			}
 		}
 
-		if(changedElem != null)
+		if(changedElem != null && System.DateTime.Now.Ticks - grabTime > 1000000)
         {
+			//Grab object from UI - replace with duplicate
+			newObj = (GameObject)Instantiate(changedElem, changedElem.transform, true);
+			newObj.transform.parent = transform;
+
 			elements[elements.FindIndex(ind => ind.Equals(changedElem))] = newObj;
 			changedElem.transform.parent = null;
 			changedElem.GetComponent<Rigidbody>().WakeUp();
@@ -79,16 +80,23 @@ public class PopulateContent : MonoBehaviour
 		if (!canvas.enabled)
 			return;
 
+		elements.Clear();
 		transform.parent.gameObject.GetComponent<TextMesh>().text = menus[idx];
 
 		if (menus[idx] == "Custom Prefabs")
         {
-			string path = Application.persistentDataPath + "/CustomPrefabs";
+			string path = "";
+			if (SystemInfo.operatingSystem.StartsWith("W"))
+				path += Application.persistentDataPath + "/CustomPrefabs";
+			else
+				path += Application.persistentDataPath + "\\CustomPrefabs";
+
 			if (!Directory.Exists(path))
 				Directory.CreateDirectory(path);
 
 			DirectoryInfo dir = new DirectoryInfo(path);
 			FileInfo[] info = dir.GetFiles("*.*");
+			int j = 0;
 			for (int i = 0; i < info.Length; i++)
 			{
 				var lab = AssetBundle.LoadFromFile(info[i].FullName);
@@ -96,14 +104,15 @@ public class PopulateContent : MonoBehaviour
 				if (lab == null)
 					continue;
 
-				float x = 8 + horizontalSpacing * i % (horizontalSpacing * numColumns);
-				float y = -8 - verticalSpacing * Mathf.Floor(i / numColumns);
-				Vector3 pos = view.transform.TransformPoint(new Vector3(x, y, 0));
-
 				foreach (string assetName in lab.GetAllAssetNames())
 				{
 					if (assetName.EndsWith(".prefab"))
                     {
+						float x = 8 + horizontalSpacing * j % (horizontalSpacing * numColumns);
+						float y = -8 - verticalSpacing * Mathf.Floor(j / numColumns);
+						Vector3 pos = view.transform.TransformPoint(new Vector3(x, y, 0));
+						j += 1;
+
 						var prefab = lab.LoadAsset<GameObject>(assetName);
 						newObj = (GameObject)Instantiate(prefab, pos, transform.rotation);
 
@@ -139,7 +148,7 @@ public class PopulateContent : MonoBehaviour
 
 	private void ConfigureNewObject(GameObject newObj)
     {
-		newObj.transform.Rotate(0, Random.Range(0, 360), 0); //initialize at different y rotations (for aesthetics)
+		//newObj.transform.Rotate(0, Random.Range(0, 360), 0); //initialize at different y rotations (for aesthetics)
 		newObj.transform.parent = transform;
 		var MySize = newObj.GetComponent<Renderer>().bounds.size;
 		var MaxSize = 1 / Mathf.Max(MySize.x, Mathf.Max(MySize.y, MySize.z));

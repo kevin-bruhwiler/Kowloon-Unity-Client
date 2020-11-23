@@ -14,7 +14,7 @@ OcclusionCullingSettings:
 RenderSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 9
-  m_Fog: 1
+  m_Fog: 0
   m_FogColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   m_FogMode: 3
   m_FogDensity: 0.025
@@ -758,6 +758,7 @@ MonoBehaviour:
   m_controller: 1
   m_parentTransform: {fileID: 1764888210}
   m_player: {fileID: 595030076}
+  playerController: {fileID: 0}
   m_focusColor: {r: 0, g: 0, b: 0, a: 0}
   m_spherecastRadius: 0
   m_noSnapThreshhold: 0.05
@@ -826,6 +827,10 @@ PrefabInstance:
       propertyPath: m_player
       value: 
       objectReference: {fileID: 595030076}
+    - target: {fileID: 11477634, guid: ba1fa4a8c66106b4988c88fe4b8e8502, type: 3}
+      propertyPath: playerController
+      value: 
+      objectReference: {fileID: 595030079}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ba1fa4a8c66106b4988c88fe4b8e8502, type: 3}
 --- !u!1 &451150445
@@ -1729,6 +1734,7 @@ MonoBehaviour:
   m_controller: 2
   m_parentTransform: {fileID: 1329532172}
   m_player: {fileID: 595030076}
+  playerController: {fileID: 0}
   m_focusColor: {r: 0, g: 0, b: 0, a: 0}
   m_spherecastRadius: 0
   m_noSnapThreshhold: 0.05
@@ -2264,6 +2270,10 @@ PrefabInstance:
       propertyPath: m_player
       value: 
       objectReference: {fileID: 595030076}
+    - target: {fileID: 11438496, guid: e6ba3498ffa1e534b91a07264266e6b8, type: 3}
+      propertyPath: playerController
+      value: 
+      objectReference: {fileID: 595030079}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e6ba3498ffa1e534b91a07264266e6b8, type: 3}
 --- !u!4 &1764888210 stripped
