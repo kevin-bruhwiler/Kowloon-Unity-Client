@@ -35,7 +35,7 @@ public class PopulateContent : MonoBehaviour
 	public ColorPickerTriangle colorPicker;
 
 	private Object[] items;
-	private string[] menus = new string[3] { "Basic Objects", "Polygon", "Custom Prefabs"};
+	private string[] menus = new string[4] { "Basic Objects", "Polygon", "Lights", "Custom Prefabs"};
 	private int idx = 0;
 	private int row = 0;
 	private int resourcesSize = 0;
@@ -60,7 +60,7 @@ public class PopulateContent : MonoBehaviour
 			}
 		}
 
-		if(changedElem != null && System.DateTime.Now.Ticks - grabTime > 1000000)
+		if(changedElem != null && System.DateTime.Now.Ticks - grabTime > 100000)
         {
 			//Grab object from UI - replace with duplicate
 			newObj = (GameObject)Instantiate(changedElem, changedElem.transform, true);
@@ -144,6 +144,7 @@ public class PopulateContent : MonoBehaviour
 				elements.Add(newObj);
 			}
 		}
+		UpdateColor();
 	}
 
 	private void ConfigureNewObject(GameObject newObj)
@@ -165,6 +166,11 @@ public class PopulateContent : MonoBehaviour
 		foreach (GameObject el in elements)
 		{
 			el.GetComponent<Renderer>().material.color = colorPicker.TheColor;
+			foreach (Transform child in el.transform)
+			{
+				if (child.gameObject.GetComponent<Light>() != null)
+					child.gameObject.GetComponent<Light>().color = colorPicker.TheColor;
+			}
 		}
 	}
 

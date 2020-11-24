@@ -1,0 +1,339 @@
+fileFormatVersion: 2
+guid: 00e57022166972f4a948469e9a2acd86
+ModelImporter:
+  serializedVersion: 26
+  internalIDToNameTable:
+  - first:
+      1: 100000
+    second: Glass
+  - first:
+      1: 100002
+    second: Glass 1
+  - first:
+      1: 100004
+    second: Object1
+  - first:
+      1: 100006
+    second: Object10
+  - first:
+      1: 100008
+    second: Object2
+  - first:
+      1: 100010
+    second: Object3
+  - first:
+      1: 100012
+    second: Object4
+  - first:
+      1: 100014
+    second: Object5
+  - first:
+      1: 100016
+    second: Object6
+  - first:
+      1: 100018
+    second: Object7
+  - first:
+      1: 100020
+    second: Object8
+  - first:
+      1: 100022
+    second: Object9
+  - first:
+      1: 100024
+    second: //RootNode
+  - first:
+      4: 400000
+    second: Glass
+  - first:
+      4: 400002
+    second: Glass 1
+  - first:
+      4: 400004
+    second: Object1
+  - first:
+      4: 400006
+    second: Object10
+  - first:
+      4: 400008
+    second: Object2
+  - first:
+      4: 400010
+    second: Object3
+  - first:
+      4: 400012
+    second: Object4
+  - first:
+      4: 400014
+    second: Object5
+  - first:
+      4: 400016
+    second: Object6
+  - first:
+      4: 400018
+    second: Object7
+  - first:
+      4: 400020
+    second: Object8
+  - first:
+      4: 400022
+    second: Object9
+  - first:
+      4: 400024
+    second: //RootNode
+  - first:
+      23: 2300000
+    second: Glass
+  - first:
+      23: 2300002
+    second: Glass 1
+  - first:
+      23: 2300004
+    second: Object1
+  - first:
+      23: 2300006
+    second: Object10
+  - first:
+      23: 2300008
+    second: Object2
+  - first:
+      23: 2300010
+    second: Object3
+  - first:
+      23: 2300012
+    second: Object4
+  - first:
+      23: 2300014
+    second: Object5
+  - first:
+      23: 2300016
+    second: Object6
+  - first:
+      23: 2300018
+    second: Object7
+  - first:
+      23: 2300020
+    second: Object8
+  - first:
+      23: 2300022
+    second: Object9
+  - first:
+      33: 3300000
+    second: Glass
+  - first:
+      33: 3300002
+    second: Glass 1
+  - first:
+      33: 3300004
+    second: Object1
+  - first:
+      33: 3300006
+    second: Object10
+  - first:
+      33: 3300008
+    second: Object2
+  - first:
+      33: 3300010
+    second: Object3
+  - first:
+      33: 3300012
+    second: Object4
+  - first:
+      33: 3300014
+    second: Object5
+  - first:
+      33: 3300016
+    second: Object6
+  - first:
+      33: 3300018
+    second: Object7
+  - first:
+      33: 3300020
+    second: Object8
+  - first:
+      33: 3300022
+    second: Object9
+  - first:
+      43: 4300000
+    second: Object4
+  - first:
+      43: 4300002
+    second: Object3
+  - first:
+      43: 4300004
+    second: Object5
+  - first:
+      43: 4300006
+    second: Glass
+  - first:
+      43: 4300008
+    second: Object6
+  - first:
+      43: 4300010
+    second: Glass
+  - first:
+      43: 4300012
+    second: Object7
+  - first:
+      43: 4300014
+    second: Object8
+  - first:
+      43: 4300016
+    second: Object2
+  - first:
+      43: 4300018
+    second: Object1
+  - first:
+      43: 4300020
+    second: Object9
+  - first:
+      43: 4300022
+    second: Object10
+  - first:
+      95: 9500000
+    second: //RootNode
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: glass
+    second: {fileID: 2100000, guid: d1fcc71d0a73abc4ea608accc553459b, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: mat22
+    second: {fileID: 2100000, guid: 757f85886dbd66e47afb086e4d979e7b, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: mat23
+    second: {fileID: 2100000, guid: 63a3f6443dd3079458ba7175a69eb102, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: mat24
+    second: {fileID: 2100000, guid: d8047a09dc8369e4f9679fd9d7007f88, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: mat25
+    second: {fileID: 2100000, guid: 49c28527a0d562a40be23891ffa4e9f2, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: mat26
+    second: {fileID: 2100000, guid: 39cd0ee20e6e65547a92b87d9608453b, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: mat27
+    second: {fileID: 2100000, guid: a8b8327eb4a4a4043b6ca07f0e829484, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: mat28
+    second: {fileID: 2100000, guid: 0ca823d806715c54b8951ea83c1826a1, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: mat29
+    second: {fileID: 2100000, guid: f93036e5d9213e74483ea9bb672bfe55, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: mat30
+    second: {fileID: 2100000, guid: bb887fef3a28d294cbc33963af417817, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: mat31
+    second: {fileID: 2100000, guid: 1039669a7d87b0e4a86fcb8ff4a69763, type: 2}
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 0
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    importConstraints: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 0
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 0.05
+    meshCompression: 0
+    addColliders: 0
+    useSRGBMaterialColor: 1
+    sortHierarchyByName: 1
+    importVisibility: 0
+    importBlendShapes: 1
+    importCameras: 0
+    importLights: 0
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    keepQuads: 0
+    weldVertices: 1
+    preserveHierarchy: 0
+    skinWeightsMode: 0
+    maxBonesPerVertex: 4
+    minBoneWeight: 0.001
+    meshOptimizationFlags: -1
+    indexFormat: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 0
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 4
+    normalCalculationMode: 0
+    legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 1
+    blendShapeNormalImportMode: 1
+    normalSmoothingSource: 0
+  referencedClips: []
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 3
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    globalScale: 0.05
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 0
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 0
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

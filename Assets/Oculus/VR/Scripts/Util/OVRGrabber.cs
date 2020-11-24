@@ -15,7 +15,9 @@ permissions and limitations under the License.
 ************************************************************************************/
 
 using System.Collections.Generic;
+using System.Collections;
 using UnityEngine;
+using UnityEngine.UI;
 
 /// <summary>
 /// Allows grabbing and throwing of objects with the OVRGrabbable component on them.
@@ -78,6 +80,9 @@ public class OVRGrabber : MonoBehaviour
     protected Quaternion m_grabbedObjectRotOff;
 	protected Dictionary<OVRGrabbable, int> m_grabCandidates = new Dictionary<OVRGrabbable, int>();
 	protected bool m_operatingWithoutOVRCameraRig = true;
+    private int mode = 0;
+    private string[] modes = new string[3] { "Static Mode", "Semi-Static Mode", "Physics Mode" };
+    public Text UIText;
 
     public OVRPlayerController playerController;
 
@@ -128,6 +133,9 @@ public class OVRGrabber : MonoBehaviour
         }
 		// We're going to setup the player collision to ignore the hand collision.
 		SetPlayerIgnoreCollision(gameObject, true);
+
+        if (UIText != null)
+            UIText.enabled = false;
     }
 
     virtual public void Update()
@@ -147,6 +155,9 @@ public class OVRGrabber : MonoBehaviour
             if (OVRInput.Get(OVRInput.Button.One))
                 m_grabbedObj.transform.localScale = m_grabbedObj.transform.localScale - new Vector3(0.02f, 0.02f, 0.02f);
         }
+
+        if ((OVRInput.GetUp(OVRInput.Button.SecondaryThumbstick)) && UIText != null)
+            StartCoroutine(ShowMessage(0.5f));
     }
 
     virtual public void FixedUpdate()
@@ -338,6 +349,15 @@ public class OVRGrabber : MonoBehaviour
         }
     }
 
+    private IEnumerator ShowMessage(float delay)
+    {
+        mode = (mode + 1) % modes.Length;
+        UIText.text = modes[mode];
+        UIText.enabled = true;
+        yield return new WaitForSeconds(delay);
+        UIText.enabled = false;
+    }
+
     protected virtual void MoveGrabbedObject(Vector3 pos, Quaternion rot, bool forceTeleport = false)
     {
         if (m_grabbedObj == null)
@@ -385,10 +405,19 @@ public class OVRGrabber : MonoBehaviour
         m_grabbedObj.GrabEnd(linearVelocity, angularVelocity);
         if(m_parentHeldObject) m_grabbedObj.transform.parent = null;
         SetPlayerIgnoreCollision(m_grabbedObj.gameObject, false);
-        Destroy(m_grabbedObj.GetComponent<OVRGrabbable>());
-        Destroy(m_grabbedObj.GetComponent<Rigidbody>());
-        if (m_grabbedObj.GetComponent<MeshCollider>() != null)
-            m_grabbedObj.GetComponent<MeshCollider>().convex = false;
+
+        if (mode == 0)
+        {
+            Destroy(m_grabbedObj.GetComponent<OVRGrabbable>());
+            Destroy(m_grabbedObj.GetComponent<Rigidbody>());
+            if (m_grabbedObj.GetComponent<MeshCollider>() != null)
+                m_grabbedObj.GetComponent<MeshCollider>().convex = false;
+        } else if (mode == 2)
+        {
+            m_grabbedObj.GetComponent<Rigidbody>().isKinematic = false;
+            m_grabbedObj.GetComponent<Rigidbody>().useGravity = true;
+        }
+        
         playerController.EnableRotation = true;
         m_grabbedObj = null;
     }

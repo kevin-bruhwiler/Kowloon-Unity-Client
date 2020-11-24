@@ -37,6 +37,7 @@ public class ColorPickerTriangle : MonoBehaviour {
         SetTrianglePoints();
         TMesh = Triangle.GetComponent<MeshFilter>().mesh;
         SetNewColor(TheColor);
+        CheckTrianglePosition();
     }
 	
 	// Update is called once per frame
@@ -153,8 +154,8 @@ public class ColorPickerTriangle : MonoBehaviour {
     {
         Color[] colors = new Color[TMesh.colors.Length];
         colors[0] = Color.black;
-        colors[1] = c;
-        colors[2] = Color.white;
+        colors[1] = Color.white;
+        colors[2] = c;
         TMesh.colors = colors;
     }
 
@@ -171,17 +172,17 @@ public class ColorPickerTriangle : MonoBehaviour {
         float d21 = Vector3.Dot(v2, v1);
         float denom = d00 * d11 - d01 * d01;
         bary.y = (d11 * d20 - d01 * d21) / denom;
-        bary.z = (d00 * d21 - d01 * d20) / denom;
-        bary.x = 1.0f - bary.y - bary.z;
+        bary.x = (d00 * d21 - d01 * d20) / denom;
+        bary.z = 1.0f - bary.y - bary.x;
         return bary;
     }
 
 
     private void SetTrianglePoints()
     {
-        RPoints[0] = Vector3.up * TRadius;
         float c = Mathf.Sin(Mathf.Deg2Rad * 30);
         float s = Mathf.Cos(Mathf.Deg2Rad * 30);
+        RPoints[0] = Vector3.up * TRadius;
         RPoints[1] = new Vector3 (s, -c, 0) * TRadius;
         RPoints[2] = new Vector3(-s, -c, 0) * TRadius;
     }
