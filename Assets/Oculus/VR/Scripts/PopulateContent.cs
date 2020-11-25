@@ -60,7 +60,7 @@ public class PopulateContent : MonoBehaviour
 			}
 		}
 
-		if(changedElem != null && System.DateTime.Now.Ticks - grabTime > 100000)
+		if(changedElem != null)
         {
 			//Grab object from UI - replace with duplicate
 			newObj = (GameObject)Instantiate(changedElem, changedElem.transform, true);
@@ -72,6 +72,8 @@ public class PopulateContent : MonoBehaviour
 			changedElem.GetComponent<Rigidbody>().isKinematic = false;
 
 			changedElem = null;
+			Clear();
+			Populate();
 		}
 	}
 
@@ -167,10 +169,8 @@ public class PopulateContent : MonoBehaviour
 		{
 			el.GetComponent<Renderer>().material.color = colorPicker.TheColor;
 			foreach (Transform child in el.transform)
-			{
 				if (child.gameObject.GetComponent<Light>() != null)
 					child.gameObject.GetComponent<Light>().color = colorPicker.TheColor;
-			}
 		}
 	}
 

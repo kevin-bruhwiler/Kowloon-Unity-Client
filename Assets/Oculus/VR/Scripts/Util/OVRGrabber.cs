@@ -419,6 +419,7 @@ public class OVRGrabber : MonoBehaviour
         }
         
         playerController.EnableRotation = true;
+        m_grabbedObj.tag = "RecentlyPlaced";
         m_grabbedObj = null;
     }
 
