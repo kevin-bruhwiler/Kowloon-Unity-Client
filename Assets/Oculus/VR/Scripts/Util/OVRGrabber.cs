@@ -82,6 +82,7 @@ public class OVRGrabber : MonoBehaviour
 	protected bool m_operatingWithoutOVRCameraRig = true;
     private int mode = 0;
     private string[] modes = new string[3] { "Static Mode", "Semi-Static Mode", "Physics Mode" };
+    private float thumbStickHoldTimer;
     public Text UIText;
 
     public OVRPlayerController playerController;
@@ -145,19 +146,27 @@ public class OVRGrabber : MonoBehaviour
         if (m_grabbedObj != null)
         {
             Vector2 inp = OVRInput.Get(OVRInput.Axis2D.SecondaryThumbstick);
-            float movementSpeed = m_grabbedObj.transform.lossyScale.magnitude;
             if (inp.magnitude != 0)
-                m_grabbedObjectPosOff += new Vector3(0, 0, inp[1] * 0.02f * movementSpeed) + transform.InverseTransformDirection(new Vector3(inp[0] * 0.02f * movementSpeed, 0, 0));
+                if (OVRInput.Get(OVRInput.Button.SecondaryThumbstick))
+                    //Rotate object
+                    m_grabbedObjectRotOff.eulerAngles = m_grabbedObjectRotOff.eulerAngles + new Vector3(inp[0], 1 - (inp[0] - inp[1]), inp[1]);
+                else
+                    //Move object
+                    m_grabbedObjectPosOff += new Vector3(0, 0, inp[1] * 0.02f * m_grabbedObj.transform.lossyScale.magnitude) + transform.InverseTransformDirection(new Vector3(inp[0] * 0.02f * m_grabbedObj.transform.lossyScale.magnitude, 0, 0));
 
             if (OVRInput.Get(OVRInput.Button.Two))
                 m_grabbedObj.transform.localScale = m_grabbedObj.transform.localScale + new Vector3(0.02f, 0.02f, 0.02f);
 
             if (OVRInput.Get(OVRInput.Button.One))
                 m_grabbedObj.transform.localScale = m_grabbedObj.transform.localScale - new Vector3(0.02f, 0.02f, 0.02f);
-        }
 
-        if ((OVRInput.GetUp(OVRInput.Button.SecondaryThumbstick)) && UIText != null)
-            StartCoroutine(ShowMessage(0.5f));
+            //Don't change the mode if the thumbstick is being held down
+            if ((OVRInput.GetDown(OVRInput.Button.SecondaryThumbstick)) && UIText != null)
+                thumbStickHoldTimer = Time.timeSinceLevelLoad;
+
+            if ((OVRInput.GetUp(OVRInput.Button.SecondaryThumbstick)) && UIText != null && Time.timeSinceLevelLoad - thumbStickHoldTimer < 0.25f)
+                StartCoroutine(ShowMessage(0.5f));
+        }
     }
 
     virtual public void FixedUpdate()
