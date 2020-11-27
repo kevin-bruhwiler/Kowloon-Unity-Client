@@ -8,8 +8,6 @@ using System.IO;
 
 public class PopulateContent : MonoBehaviour
 {
-	public GameObject prefab; // This is our prefab object that will be exposed in the inspector
-
 	public Canvas canvas;
 
 	GameObject newObj;
@@ -158,7 +156,7 @@ public class PopulateContent : MonoBehaviour
 		newObj.transform.localScale = objScale * new Vector3(MaxSize, MaxSize, MaxSize); ;
 
 		// Randomize the color of our image
-		newObj.GetComponent<Renderer>().material.color = colorPicker.TheColor;
+		//newObj.GetComponent<Renderer>().material.color = colorPicker.TheColor;
 
 		elements.Add(newObj);
 	}
@@ -167,7 +165,7 @@ public class PopulateContent : MonoBehaviour
 	{
 		foreach (GameObject el in elements)
 		{
-			el.GetComponent<Renderer>().material.color = colorPicker.TheColor;
+			//el.GetComponent<Renderer>().material.color = colorPicker.TheColor;
 			foreach (Transform child in el.transform)
 				if (child.gameObject.GetComponent<Light>() != null)
 					child.gameObject.GetComponent<Light>().color = colorPicker.TheColor;
