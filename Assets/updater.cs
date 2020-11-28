@@ -5,6 +5,7 @@ using System.Text;
 using System;
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.UI;
 using UnityEditor;
 using SimpleJSON;
 
@@ -14,6 +15,9 @@ public class updater : MonoBehaviour
 
     public VRTeleporter teleporter;
     public OVRPlayerController player;
+    public Button uploadButton;
+    public Button quitButton;
+    public Canvas menu;
     private CharacterController cc;
     private string placedObjectDir = "Assets/Resources/RecentlyPlacedObjects/";
 
@@ -22,62 +26,68 @@ public class updater : MonoBehaviour
     {
         cc = player.GetComponent<CharacterController>();
         cc.enabled = true;
+
+        Button btn = uploadButton.GetComponent<Button>();
+        btn.onClick.AddListener(UploadRecentlyPlacedObjects);
+
+        btn = quitButton.GetComponent<Button>();
+        btn.onClick.AddListener(Application.Quit);
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (OVRInput.Get(OVRInput.Button.Three))
+        if (!menu.enabled)
         {
-            teleporter.ToggleDisplay(true);
-        }
-        if (OVRInput.GetUp(OVRInput.Button.Three))
-        {
-            cc.enabled = false;
-            teleporter.Teleport();
-            teleporter.ToggleDisplay(false);
-            cc.enabled = true;
-        }
-
-        if (OVRInput.GetUp(OVRInput.Button.Start)) //Temporary - save all placed objects selection
-        {
-            GameObject[] placedObjects = GameObject.FindGameObjectsWithTag("RecentlyPlaced");
-            foreach (GameObject go in placedObjects)
+            if (OVRInput.Get(OVRInput.Button.Three))
             {
-                string localPath = placedObjectDir + go.GetInstanceID() + ".prefab";
-                PrefabUtility.SaveAsPrefabAssetAndConnect(go, localPath, InteractionMode.UserAction);
+                teleporter.ToggleDisplay(true);
             }
-
-            DirectoryInfo dir = new DirectoryInfo(Application.dataPath + "/Resources/RecentlyPlacedObjects/");
-            FileInfo[] info = dir.GetFiles("*.*");
-
-            // Read prefab and all dependencies into byte strings
-            var files = JSON.Parse("{}");
-            foreach (FileInfo f in info)
+            if (OVRInput.GetUp(OVRInput.Button.Three))
             {
-                string[] dependencies = AssetDatabase.GetDependencies(placedObjectDir + f.Name, true);
-                foreach (string dependency in dependencies)
-                    if (files[dependency] == null)
-                        files[dependency] = Convert.ToBase64String(File.ReadAllBytes(dependency));
+                cc.enabled = false;
+                teleporter.Teleport();
+                teleporter.ToggleDisplay(false);
+                cc.enabled = true;
             }
-
-            Debug.Log("here");
-            StartCoroutine(Post("http://localhost:5000/transactions/new/unsigned", files.ToString()));
-
-            foreach (FileInfo f in info)
-                File.Delete(f.FullName);
         }
+    }
+
+    void UploadRecentlyPlacedObjects()
+    {
+        GameObject[] placedObjects = GameObject.FindGameObjectsWithTag("RecentlyPlaced");
+        foreach (GameObject go in placedObjects)
+        {
+            string localPath = placedObjectDir + go.GetInstanceID() + ".prefab";
+            PrefabUtility.SaveAsPrefabAssetAndConnect(go, localPath, InteractionMode.UserAction);
+        }
+
+        DirectoryInfo dir = new DirectoryInfo(Application.dataPath + "/Resources/RecentlyPlacedObjects/");
+        FileInfo[] info = dir.GetFiles("*.*");
+
+        // Read prefab and all dependencies into byte strings
+        var files = JSON.Parse("{}");
+        foreach (FileInfo f in info)
+        {
+            string[] dependencies = AssetDatabase.GetDependencies(placedObjectDir + f.Name, true);
+            foreach (string dependency in dependencies)
+                if (files[dependency] == null)
+                    files[dependency] = Convert.ToBase64String(File.ReadAllBytes(dependency));
+        }
+
+        StartCoroutine(Post("http://localhost:5000/transactions/new/unsigned", files.ToString()));
+
+        foreach (FileInfo f in info)
+            File.Delete(f.FullName);
     }
 
     IEnumerator Post(string url, string bodyJsonString)
     {
-        Debug.Log("here2");
         var request = new UnityWebRequest(url, "POST");
         byte[] bodyRaw = Encoding.UTF8.GetBytes(bodyJsonString);
         request.uploadHandler = (UploadHandler)new UploadHandlerRaw(bodyRaw);
         request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
         request.SetRequestHeader("Content-Type", "application/json");
-        Debug.Log("here");
         yield return request.SendWebRequest();
         Debug.Log("Status Code: " + request.responseCode);
     }

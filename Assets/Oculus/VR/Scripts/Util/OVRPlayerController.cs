@@ -137,6 +137,7 @@ public class OVRPlayerController : MonoBehaviour
 	/// Don't move player while UI is active. Movement controls are also used to navigate UI
 	/// </summary>
 	public Canvas ui;
+	public Canvas menu;
 	public PopulateContent uiContents;
 
 	protected CharacterController Controller = null;
@@ -185,6 +186,7 @@ public class OVRPlayerController : MonoBehaviour
 			CameraRig = CameraRigs[0];
 
 		InitialYRotation = transform.rotation.eulerAngles.y;
+		uiContents.Disable();
 	}
 
 	void OnEnable()
@@ -233,10 +235,28 @@ public class OVRPlayerController : MonoBehaviour
 		if (OVRInput.GetUp(OVRInput.RawButton.Y))
 		{
 			if (!ui.enabled)
+            {
+				menu.enabled = false;
 				uiContents.Enable();
-			else
+			}
+            else
+            {
 				uiContents.Disable();
-		}
+			}
+				
+		} 
+		else if (OVRInput.GetUp(OVRInput.Button.Start))
+		{
+			if (!menu.enabled)
+            {
+				uiContents.Disable();
+				menu.enabled = true;
+			}
+			else
+            {
+				menu.enabled = false;
+			}
+        }
 	}
 
 	protected virtual void UpdateController()
@@ -333,7 +353,7 @@ public class OVRPlayerController : MonoBehaviour
 		if (HaltUpdateMovement)
 			return;
 
-		if (EnableLinearMovement && !ui.enabled)
+		if (EnableLinearMovement && !ui.enabled && !menu.enabled)
 		{
 			bool moveForward = Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow);
 			bool moveLeft = Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow);

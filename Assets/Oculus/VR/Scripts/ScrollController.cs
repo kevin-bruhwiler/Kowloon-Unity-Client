@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class ScrollController : MonoBehaviour
 {
-    public ScrollRect scrollRect;
+    public Canvas canvas;
 
     public PopulateContent tab;
 
@@ -22,7 +22,7 @@ public class ScrollController : MonoBehaviour
     void Update()
     {
         // Scroll with left dpad
-        if(scrollRect != null && scrollRect.IsActive() && Mathf.Abs(OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick)[1]) > Mathf.Abs(OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick)[0]))
+        if(canvas != null && canvas.enabled && Mathf.Abs(OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick)[1]) > Mathf.Abs(OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick)[0]))
         {
             if (System.DateTime.Now.Ticks - tabChangeTime > 2000000)
             {
@@ -34,7 +34,7 @@ public class ScrollController : MonoBehaviour
         }
 
         // Change "tabs" with left dpad
-        if (scrollRect != null && scrollRect.IsActive() && Mathf.Abs(OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick)[0]) > Mathf.Abs(OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick)[1]))
+        if (canvas != null && canvas.enabled && Mathf.Abs(OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick)[0]) > Mathf.Abs(OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick)[1]))
         {
             if (System.DateTime.Now.Ticks - tabChangeTime > 2000000)
             {

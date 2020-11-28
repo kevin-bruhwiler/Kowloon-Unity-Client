@@ -40,7 +40,6 @@ public class PopulateContent : MonoBehaviour
 
 	void Start()
 	{
-		Populate();
 
 	}
 
