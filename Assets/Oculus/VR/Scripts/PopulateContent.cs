@@ -118,6 +118,10 @@ public class PopulateContent : MonoBehaviour
 						newObj.GetComponent<Rigidbody>().useGravity = false;
 						newObj.GetComponent<Rigidbody>().isKinematic = true;
 
+						FilepathStorer fps = newObj.AddComponent(typeof(FilepathStorer)) as FilepathStorer;
+						fps.SetFilepath(info[i].FullName);
+						fps.SetPrefabName(assetName);
+
 						ConfigureNewObject(newObj);
 					}
 				}

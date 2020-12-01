@@ -419,7 +419,7 @@ public class OVRGrabber : MonoBehaviour
         {
             Destroy(m_grabbedObj.GetComponent<OVRGrabbable>());
             Destroy(m_grabbedObj.GetComponent<Rigidbody>());
-            if (m_grabbedObj.GetComponent<MeshCollider>() != null)
+            if (m_grabbedObj.GetComponent<MeshCollider>() != null && m_grabbedObj.GetComponent<MeshCollider>().sharedMesh.isReadable)
                 m_grabbedObj.GetComponent<MeshCollider>().convex = false;
         } else if (mode == 2)
         {

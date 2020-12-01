@@ -5,18 +5,18 @@ using UnityEngine.UI;
 
 public class MenuController : MonoBehaviour
 {
-    private GameObject[] buttons;
+    private Button[] buttons;
     private int activeIndex = 0;
-    private long changedTime = System.DateTime.Now.Ticks;
+    private long changedTime = 0;
 
     public Canvas canvas;
 
     // Start is called before the first frame update
     void Start()
     {
-        buttons = new GameObject[transform.childCount];
+        buttons = new Button[transform.childCount];
         for (int i = 0; i < transform.childCount; i++)
-            buttons[i] = transform.GetChild(i).gameObject;
+            buttons[i] = transform.GetChild(i).gameObject.GetComponent<Button>();
     }
 
     // Update is called once per frame
@@ -25,15 +25,16 @@ public class MenuController : MonoBehaviour
         if (canvas.enabled)
         {
             Vector2 inp = OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick);
-            if (Mathf.Abs(inp[1]) > Mathf.Abs(inp[0]) && System.DateTime.Now.Ticks - changedTime > 20000000)
+            if (Mathf.Abs(inp[1]) > Mathf.Abs(inp[0]) & System.DateTime.Now.Ticks - changedTime > 1000000)
             {
+                changedTime = System.DateTime.Now.Ticks;
                 if (inp[1] > 0)
                     activeIndex = (activeIndex + 1) % buttons.Length;
                 else
                     activeIndex = (((activeIndex - 1) % buttons.Length) + buttons.Length) % buttons.Length;
 
-                changedTime = System.DateTime.Now.Ticks;
-                buttons[activeIndex].GetComponent<Button>().Select();
+                
+                buttons[activeIndex].Select();
             }
 
             if (OVRInput.GetUp(OVRInput.RawButton.X))
