@@ -70,6 +70,18 @@ public class updater : MonoBehaviour
             file["prefabName"] = fps.GetPrefabName();
             file["position"] = go.transform.position;
             file["rotation"] = go.transform.rotation;
+            file["scale"] = go.transform.localScale;
+            file["grabbable"] = go.GetComponent<OVRGrabbable>() != null;
+            file["rigidbody"] = go.GetComponent<Rigidbody>() != null;
+            file["meshcollider"] = go.GetComponent<MeshCollider>() != null;
+            if (file["rigidbody"])
+            {
+                file["kinematic"] = go.GetComponent<Rigidbody>().isKinematic;
+                file["gravity"] = go.GetComponent<Rigidbody>().useGravity;
+            }
+            if (file["meshcollider"])
+                file["convex"] = go.GetComponent<MeshCollider>().convex;
+
             file["bundle"] = Convert.ToBase64String(File.ReadAllBytes(fps.GetFilepath()));
 
             files[""+id] = file;
@@ -124,19 +136,39 @@ public class updater : MonoBehaviour
                 {
                     //string filepath = kvp.Key.Replace("Assets/Resources/RecentlyPlacedObjects/", downloadedDir);
 
-                    Debug.Log(kvp.Key);
-                    Debug.Log(kvp.Value);
-
                     File.WriteAllBytes(kvp.Value["filepath"], Convert.FromBase64String(kvp.Value["bundle"]));
 
                     var lab = AssetBundle.LoadFromFile(kvp.Value["filepath"]);
 
                     foreach (string assetName in lab.GetAllAssetNames())
                     {
-                        if (assetName == kvp.Value["prefabName"])
+                        if (assetName == kvp.Value["prefabName"]) // && Physics.OverlapSphere(kvp.Value["position"], 0).Length == 1)
                         {
                             var prefab = lab.LoadAsset<GameObject>(assetName);
-                            Instantiate(prefab, kvp.Value["position"], kvp.Value["rotation"]);
+                            GameObject go = (GameObject)Instantiate(prefab, kvp.Value["position"], kvp.Value["rotation"]);
+                            go.transform.localScale = kvp.Value["scale"];
+
+                            if (kvp.Value["rigidbody"])
+                            {
+                                Rigidbody rb = go.GetComponent<Rigidbody>();
+                                rb.useGravity = kvp.Value["gravity"];
+                                rb.isKinematic = kvp.Value["kinematic"];
+                            } 
+                            else
+                            {
+                                Destroy(go.GetComponent<Rigidbody>());
+                            }
+                            if (kvp.Value["meshcollider"])
+                            {
+                                MeshCollider mc = go.GetComponent<MeshCollider>();
+                                mc.convex = kvp.Value["convex"];
+                            }
+                            else
+                            {
+                                Destroy(go.GetComponent<MeshCollider>());
+                            }
+                            if (!kvp.Value["grabbable"])
+                                Destroy(go.GetComponent<OVRGrabbable>());
                         }
                     }
 
