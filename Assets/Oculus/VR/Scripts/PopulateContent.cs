@@ -33,14 +33,14 @@ public class PopulateContent : MonoBehaviour
 	public ColorPickerTriangle colorPicker;
 
 	private Object[] items;
-	private string[] menus = new string[4] { "Basic Objects", "Polygon", "Lights", "Custom Prefabs"};
+	private string[] menus = new string[2] { "Polygon", "Custom Prefabs"};
 	private int idx = 0;
 	private int row = 0;
 	private int resourcesSize = 0;
 
 	void Start()
 	{
-
+		colorPicker.gameObject.SetActive(false);
 	}
 
 	void Update()
@@ -82,13 +82,11 @@ public class PopulateContent : MonoBehaviour
 		elements.Clear();
 		transform.parent.gameObject.GetComponent<TextMesh>().text = menus[idx];
 
-		if (menus[idx] == "Custom Prefabs")
+		if (true)
         {
-			string path = "";
-			if (SystemInfo.operatingSystem.StartsWith("W"))
-				path += Application.persistentDataPath + "/CustomPrefabs";
-			else
-				path += Application.persistentDataPath + "\\CustomPrefabs";
+			colorPicker.gameObject.SetActive(true);
+
+			string path = Application.persistentDataPath + "/" + menus[idx];
 
 			if (!Directory.Exists(path))
 				Directory.CreateDirectory(path);
@@ -120,6 +118,7 @@ public class PopulateContent : MonoBehaviour
 
 						FilepathStorer fps = newObj.AddComponent(typeof(FilepathStorer)) as FilepathStorer;
 						fps.SetFilepath(info[i].FullName);
+						fps.SetFilename(info[i].Name);
 						fps.SetPrefabName(assetName);
 
 						ConfigureNewObject(newObj);
@@ -129,6 +128,10 @@ public class PopulateContent : MonoBehaviour
 				lab.Unload(false);
 			}
 		} else {
+			colorPicker.gameObject.SetActive(false);
+			if (menus[idx] == "Lights")
+				colorPicker.gameObject.SetActive(true);
+
 			items = Resources.LoadAll(menus[idx], typeof(GameObject));
 			resourcesSize = items.Length;
 			items = items.Skip(row).Take(numberToCreate).Cast<Object>().ToArray();

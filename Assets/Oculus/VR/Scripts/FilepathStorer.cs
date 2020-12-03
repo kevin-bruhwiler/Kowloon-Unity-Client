@@ -7,6 +7,7 @@ public class FilepathStorer : MonoBehaviour
 
     private string filepath;
     private string prefabName;
+    private string filename;
 
     public void SetFilepath(string fp)
     {
@@ -16,6 +17,16 @@ public class FilepathStorer : MonoBehaviour
     public string GetFilepath()
     {
         return filepath;
+    }
+
+    public void SetFilename(string fn)
+    {
+        filename = fn;
+    }
+
+    public string GetFilename()
+    {
+        return filename;
     }
 
     public void SetPrefabName(string pn)

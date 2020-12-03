@@ -1,9 +1,7 @@
 fileFormatVersion: 2
 guid: 37e681eb08549004c9d9c2be529cbf54
-timeCreated: 1572322132
-licenseType: Store
-NativeFormatImporter:
-  mainObjectFileID: 100100000
+PrefabImporter:
+  externalObjects: {}
   userData: 
-  assetBundleName: 
+  assetBundleName: polygon
   assetBundleVariant: 

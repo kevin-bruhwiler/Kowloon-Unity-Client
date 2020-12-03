@@ -20,7 +20,6 @@ public class updater : MonoBehaviour
     public Button downloadButton;
     public Canvas menu;
     private CharacterController cc;
-    private string placedObjectDir = "Assets/Resources/RecentlyPlacedObjects/";
 
     // Start is called before the first frame update
     void Start()
@@ -66,7 +65,7 @@ public class updater : MonoBehaviour
             FilepathStorer fps = go.GetComponent<FilepathStorer>();
             int id = go.GetInstanceID();
             var file = JSON.Parse("{}");
-            file["filepath"] = fps.GetFilepath();
+            file["filepath"] = fps.GetFilename();
             file["prefabName"] = fps.GetPrefabName();
             file["position"] = go.transform.position;
             file["rotation"] = go.transform.rotation;
@@ -122,11 +121,17 @@ public class updater : MonoBehaviour
         StartCoroutine(Post("http://localhost:5000/grid/index", location.ToString()));
     }
 
-    void PopulateWorld(JSONNode data)
+    void PopulateWorld(JSONNode data, JSONNode bundles)
     {
+        string storageDir = Application.persistentDataPath + "/LoadedAssetBundles/";
         //string downloadedDir = Application.dataPath + "/DownloadedObjects/"; ;
-       // if (!Directory.Exists(downloadedDir))
-        //    Directory.CreateDirectory(downloadedDir);
+        if (!Directory.Exists(storageDir))
+            Directory.CreateDirectory(storageDir);
+
+        for (int k = 0; k < bundles.Count; k++)
+        {
+            File.WriteAllBytes(storageDir + bundles[k][0], Convert.FromBase64String(bundles[k][1]));
+        }
 
         for (int k = 0; k < data.Count; k++)
         {
@@ -136,9 +141,9 @@ public class updater : MonoBehaviour
                 {
                     //string filepath = kvp.Key.Replace("Assets/Resources/RecentlyPlacedObjects/", downloadedDir);
 
-                    File.WriteAllBytes(kvp.Value["filepath"], Convert.FromBase64String(kvp.Value["bundle"]));
+                    //File.WriteAllBytes(kvp.Value["filepath"], Convert.FromBase64String(kvp.Value["bundle"]));
 
-                    var lab = AssetBundle.LoadFromFile(kvp.Value["filepath"]);
+                    var lab = AssetBundle.LoadFromFile(storageDir + kvp.Value["filepath"]);
 
                     foreach (string assetName in lab.GetAllAssetNames())
                     {
@@ -197,7 +202,7 @@ public class updater : MonoBehaviour
         var response = JSON.Parse(request.downloadHandler.text);
         Debug.Log("Status Code: " + request.responseCode);
         if (response != null && response["type"] == "grid/index")
-            PopulateWorld(response["block"]["data"]);
+            PopulateWorld(response["block"]["data"], response["bundles"]);
     }
 
 }
