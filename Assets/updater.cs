@@ -19,6 +19,7 @@ public class updater : MonoBehaviour
     public Button quitButton;
     public Button downloadButton;
     public Canvas menu;
+    public OVRGrabber rightHandGrabber;
     private CharacterController cc;
 
     // Start is called before the first frame update
@@ -84,34 +85,10 @@ public class updater : MonoBehaviour
             file["bundle"] = Convert.ToBase64String(File.ReadAllBytes(fps.GetFilepath()));
 
             files[""+id] = file;
-
-            //string localPath = placedObjectDir + go.GetInstanceID() + ".prefab";
-            //PrefabUtility.SaveAsPrefabAssetAndConnect(go, localPath, InteractionMode.UserAction);
         }
-
-        /*
-        DirectoryInfo dir = new DirectoryInfo(Application.dataPath + "/Resources/RecentlyPlacedObjects/");
-        FileInfo[] info = dir.GetFiles("*.*");
-
-        // Read prefab and all dependencies into byte strings
-        var files = JSON.Parse("{}");
-        foreach (FileInfo f in info)
-        {
-            string[] dependencies = AssetDatabase.GetDependencies(placedObjectDir + f.Name, true);
-            foreach (string dependency in dependencies)
-            {
-                if (files[dependency] == null)
-                    files[dependency] = Convert.ToBase64String(File.ReadAllBytes(dependency));
-            }
-        }
-        */
-
-
+        files["delete"] = rightHandGrabber.filesToDelete;
 
         StartCoroutine(Post("http://localhost:5000/transactions/new/unsigned", files.ToString()));
-
-        //foreach (FileInfo f in info)
-        //    File.Delete(f.FullName);
     }
 
     void DownloadObjectsAtBlock()
@@ -124,7 +101,6 @@ public class updater : MonoBehaviour
     void PopulateWorld(JSONNode data, JSONNode bundles)
     {
         string storageDir = Application.persistentDataPath + "/LoadedAssetBundles/";
-        //string downloadedDir = Application.dataPath + "/DownloadedObjects/"; ;
         if (!Directory.Exists(storageDir))
             Directory.CreateDirectory(storageDir);
 
@@ -139,10 +115,8 @@ public class updater : MonoBehaviour
             {
                 foreach (KeyValuePair<string, JSONNode> kvp in (JSONObject)JSON.Parse(o))
                 {
-                    //string filepath = kvp.Key.Replace("Assets/Resources/RecentlyPlacedObjects/", downloadedDir);
-
-                    //File.WriteAllBytes(kvp.Value["filepath"], Convert.FromBase64String(kvp.Value["bundle"]));
-
+                    if (kvp.Key == "delete")
+                        continue;
                     var lab = AssetBundle.LoadFromFile(storageDir + kvp.Value["filepath"]);
 
                     foreach (string assetName in lab.GetAllAssetNames())
@@ -152,6 +126,10 @@ public class updater : MonoBehaviour
                             var prefab = lab.LoadAsset<GameObject>(assetName);
                             GameObject go = (GameObject)Instantiate(prefab, kvp.Value["position"], kvp.Value["rotation"]);
                             go.transform.localScale = kvp.Value["scale"];
+
+                            FilepathStorer fps = go.AddComponent(typeof(FilepathStorer)) as FilepathStorer;
+                            fps.SetFilepath(kvp.Value["filepath"]);
+                            fps.SetID(kvp.Key);
 
                             if (kvp.Value["rigidbody"])
                             {

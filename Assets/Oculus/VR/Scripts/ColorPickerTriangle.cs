@@ -147,7 +147,7 @@ public class ColorPickerTriangle : MonoBehaviour {
         Color c = (CurBary.y > .9999) ? Color.black : Color.HSVToRGB(h, CurBary.x / (1f - CurBary.y), 1f - CurBary.y);
         TheColor = c;
         TheColor.a = 1f;
-        content.UpdateColor();
+        //content.UpdateColor();
     }
 
     private void ChangeTriangleColor(Color c)

@@ -1,90 +1,211 @@
 fileFormatVersion: 2
 guid: f82b1e3c015abaa409d91ab8eb628ac4
-timeCreated: 1444079116
-licenseType: Store
 ModelImporter:
-  serializedVersion: 18
-  fileIDToRecycleName:
-    100000: Eye-l
-    100002: Eye-r
-    100004: Head-0
-    100006: Head-1
-    100008: Head-2
-    100010: //RootNode
-    100012: Head-3
-    100014: Head-4
-    100016: Head-5
-    100018: mouth
-    400000: Eye-l
-    400002: Eye-r
-    400004: Head-0
-    400006: Head-1
-    400008: Head-2
-    400010: //RootNode
-    400012: Head-3
-    400014: Head-4
-    400016: Head-5
-    400018: mouth
-    2300000: Eye-l
-    2300002: Eye-r
-    2300004: Head-0
-    2300006: Head-1
-    2300008: Head-2
-    2300010: Head-3
-    2300012: Head-4
-    2300014: Head-5
-    2300016: mouth
-    3300000: Eye-l
-    3300002: Eye-r
-    3300004: Head-0
-    3300006: Head-1
-    3300008: Head-2
-    3300010: Head-3
-    3300012: Head-4
-    3300014: Head-5
-    3300016: mouth
-    4300000: Head-0
-    4300002: Eye-r
-    4300004: Eye-l
-    4300006: Head-5
-    4300008: Head-3
-    4300010: Head-4
-    4300012: Head-2
-    4300014: Head-1
-    4300016: mouth
+  serializedVersion: 19301
+  internalIDToNameTable:
+  - first:
+      1: 100000
+    second: Eye-l
+  - first:
+      1: 100002
+    second: Eye-r
+  - first:
+      1: 100004
+    second: Head-0
+  - first:
+      1: 100006
+    second: Head-1
+  - first:
+      1: 100008
+    second: Head-2
+  - first:
+      1: 100010
+    second: //RootNode
+  - first:
+      1: 100012
+    second: Head-3
+  - first:
+      1: 100014
+    second: Head-4
+  - first:
+      1: 100016
+    second: Head-5
+  - first:
+      1: 100018
+    second: mouth
+  - first:
+      4: 400000
+    second: Eye-l
+  - first:
+      4: 400002
+    second: Eye-r
+  - first:
+      4: 400004
+    second: Head-0
+  - first:
+      4: 400006
+    second: Head-1
+  - first:
+      4: 400008
+    second: Head-2
+  - first:
+      4: 400010
+    second: //RootNode
+  - first:
+      4: 400012
+    second: Head-3
+  - first:
+      4: 400014
+    second: Head-4
+  - first:
+      4: 400016
+    second: Head-5
+  - first:
+      4: 400018
+    second: mouth
+  - first:
+      23: 2300000
+    second: Eye-l
+  - first:
+      23: 2300002
+    second: Eye-r
+  - first:
+      23: 2300004
+    second: Head-0
+  - first:
+      23: 2300006
+    second: Head-1
+  - first:
+      23: 2300008
+    second: Head-2
+  - first:
+      23: 2300010
+    second: Head-3
+  - first:
+      23: 2300012
+    second: Head-4
+  - first:
+      23: 2300014
+    second: Head-5
+  - first:
+      23: 2300016
+    second: mouth
+  - first:
+      33: 3300000
+    second: Eye-l
+  - first:
+      33: 3300002
+    second: Eye-r
+  - first:
+      33: 3300004
+    second: Head-0
+  - first:
+      33: 3300006
+    second: Head-1
+  - first:
+      33: 3300008
+    second: Head-2
+  - first:
+      33: 3300010
+    second: Head-3
+  - first:
+      33: 3300012
+    second: Head-4
+  - first:
+      33: 3300014
+    second: Head-5
+  - first:
+      33: 3300016
+    second: mouth
+  - first:
+      43: 4300000
+    second: Head-0
+  - first:
+      43: 4300002
+    second: Eye-r
+  - first:
+      43: 4300004
+    second: Eye-l
+  - first:
+      43: 4300006
+    second: Head-5
+  - first:
+      43: 4300008
+    second: Head-3
+  - first:
+      43: 4300010
+    second: Head-4
+  - first:
+      43: 4300012
+    second: Head-2
+  - first:
+      43: 4300014
+    second: Head-1
+  - first:
+      43: 4300016
+    second: mouth
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: head-2
+    second: {fileID: 2100000, guid: b8f002f88e9d7e847b5306f3338f80db, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sil
+    second: {fileID: 2100000, guid: 5290b3a55eaa1b7458665dc2d856c042, type: 2}
   materials:
-    importMaterials: 1
+    materialImportMode: 1
     materialName: 0
     materialSearch: 1
+    materialLocation: 0
   animations:
     legacyGenerateAnimations: 4
     bakeSimulation: 0
+    resampleCurves: 1
     optimizeGameObjects: 0
     motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
     animationImportErrors: 
     animationImportWarnings: 
     animationRetargetingWarnings: 
     animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    importConstraints: 0
     animationCompression: 1
-    animationRotationError: .5
-    animationPositionError: .5
-    animationScaleError: .5
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
     animationWrapMode: 0
     extraExposedTransformPaths: []
+    extraUserProperties: []
     clipAnimations: []
-    isReadable: 1
+    isReadable: 0
   meshes:
     lODScreenPercentages: []
     globalScale: 1
     meshCompression: 0
     addColliders: 0
+    useSRGBMaterialColor: 1
+    sortHierarchyByName: 1
+    importVisibility: 0
     importBlendShapes: 1
+    importCameras: 0
+    importLights: 0
+    fileIdsGeneration: 1
     swapUVChannels: 0
     generateSecondaryUV: 0
     useFileUnits: 1
-    optimizeMeshForGPU: 1
     keepQuads: 0
     weldVertices: 1
+    preserveHierarchy: 0
+    skinWeightsMode: 0
+    maxBonesPerVertex: 4
+    minBoneWeight: 0.001
+    meshOptimizationFlags: -1
+    indexFormat: 1
     secondaryUVAngleDistortion: 8
     secondaryUVAreaDistortion: 15.000001
     secondaryUVHardAngle: 88
@@ -92,26 +213,35 @@ ModelImporter:
     useFileScale: 1
   tangentSpace:
     normalSmoothAngle: 60
-    splitTangentsAcrossUV: 1
     normalImportMode: 0
-    tangentImportMode: 1
+    tangentImportMode: 4
+    normalCalculationMode: 0
+    legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 1
+    blendShapeNormalImportMode: 1
+    normalSmoothingSource: 0
+  referencedClips: []
   importAnimation: 1
-  copyAvatar: 0
   humanDescription:
+    serializedVersion: 3
     human: []
     skeleton: []
-    armTwist: .5
-    foreArmTwist: .5
-    upperLegTwist: .5
-    legTwist: .5
-    armStretch: .0500000007
-    legStretch: .0500000007
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
     feetSpacing: 0
+    globalScale: 1
     rootMotionBoneName: 
     hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 0
   lastHumanDescriptionAvatarSource: {instanceID: 0}
+  autoGenerateAvatarMappingIfUnspecified: 1
   animationType: 0
   humanoidOversampling: 1
+  avatarSetup: 0
   additionalBone: 0
   userData: 
   assetBundleName: 

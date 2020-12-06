@@ -235,28 +235,28 @@ public class OVRPlayerController : MonoBehaviour
 		if (OVRInput.GetUp(OVRInput.RawButton.Y))
 		{
 			if (!ui.enabled)
-            {
+			{
 				menu.enabled = false;
 				uiContents.Enable();
 			}
-            else
-            {
+			else
+			{
 				uiContents.Disable();
 			}
-				
-		} 
+
+		}
 		else if (OVRInput.GetUp(OVRInput.Button.Start))
 		{
 			if (!menu.enabled)
-            {
+			{
 				uiContents.Disable();
 				menu.enabled = true;
 			}
 			else
-            {
+			{
 				menu.enabled = false;
 			}
-        }
+		}
 	}
 
 	protected virtual void UpdateController()

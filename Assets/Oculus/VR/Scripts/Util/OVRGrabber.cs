@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
+using SimpleJSON;
 
 /// <summary>
 /// Allows grabbing and throwing of objects with the OVRGrabbable component on them.
@@ -84,6 +85,15 @@ public class OVRGrabber : MonoBehaviour
     private string[] modes = new string[3] { "Static Mode", "Semi-Static Mode", "Physics Mode" };
     private float thumbStickHoldTimer;
     public Text UIText;
+    public Image deleteTimer;
+    private float fillAmount = 0.0f;
+
+    public JSONNode filesToDelete = JSON.Parse("{}");
+
+    public GameObject rightHandAnchor;
+    public Shader highlight;
+    private GameObject currentlySelected;
+    private Shader tempShader;
 
     public OVRPlayerController playerController;
 
@@ -152,7 +162,8 @@ public class OVRGrabber : MonoBehaviour
                     m_grabbedObjectRotOff.eulerAngles = m_grabbedObjectRotOff.eulerAngles + new Vector3(inp[0], 1 - (inp[0] - inp[1]), inp[1]);
                 else
                     //Move object
-                    m_grabbedObjectPosOff += new Vector3(0, 0, inp[1] * 0.02f * m_grabbedObj.transform.lossyScale.magnitude) + transform.InverseTransformDirection(new Vector3(inp[0] * 0.02f * m_grabbedObj.transform.lossyScale.magnitude, 0, 0));
+                    m_grabbedObjectPosOff += new Vector3(0, 0, inp[1] * 0.02f * m_grabbedObj.transform.lossyScale.magnitude) + 
+                        transform.InverseTransformDirection(new Vector3(inp[0] * 0.02f * m_grabbedObj.transform.lossyScale.magnitude, 0, 0));
 
             if (OVRInput.Get(OVRInput.Button.Two))
                 m_grabbedObj.transform.localScale = m_grabbedObj.transform.localScale + new Vector3(0.02f, 0.02f, 0.02f);
@@ -166,6 +177,71 @@ public class OVRGrabber : MonoBehaviour
 
             if ((OVRInput.GetUp(OVRInput.Button.SecondaryThumbstick)) && UIText != null && Time.timeSinceLevelLoad - thumbStickHoldTimer < 0.25f)
                 StartCoroutine(ShowMessage(0.5f));
+        }
+
+        if (gameObject.name == "CustomHandRight")
+        {
+            //Grab selected object
+            if (currentlySelected != null && OVRInput.Get(OVRInput.Axis1D.SecondaryHandTrigger) > 0 && OVRInput.Get(OVRInput.Axis1D.SecondaryIndexTrigger) > 0)
+            {
+                m_grabbedObj = currentlySelected.GetComponent<OVRGrabbable>();
+                m_grabbedObj.GrabBegin(this, currentlySelected.GetComponent<Collider>());
+                m_grabbedObjectRotOff.eulerAngles = (Quaternion.Inverse(transform.rotation) * currentlySelected.transform.rotation).eulerAngles;
+                m_grabbedObjectPosOff = Vector3.Scale(new Vector3(0, 0, -1), (transform.position - currentlySelected.transform.position));
+            }
+
+            //Point at object to select/delete it
+            if (OVRInput.Get(OVRInput.Axis1D.SecondaryHandTrigger) > 0 && OVRInput.Get(OVRInput.Axis1D.SecondaryIndexTrigger) == 0)
+            {
+                RaycastHit hitPoint;
+                Ray ray = new Ray(rightHandAnchor.transform.position + rightHandAnchor.transform.TransformDirection(new Vector3(0.05f, 0, 0)), rightHandAnchor.transform.forward);
+                if (Physics.Raycast(ray, out hitPoint, Mathf.Infinity) && hitPoint.collider.gameObject.GetComponent<MeshRenderer>() != null && currentlySelected != hitPoint.collider.gameObject)
+                {
+                    if (currentlySelected != null)
+                        currentlySelected.GetComponent<MeshRenderer>().material.shader = tempShader;
+                    currentlySelected = hitPoint.collider.gameObject;
+                    tempShader = currentlySelected.GetComponent<MeshRenderer>().material.shader;
+                    currentlySelected.GetComponent<MeshRenderer>().material.shader = highlight;
+                }
+                if (currentlySelected != null)
+                {
+                    if (!OVRInput.Get(OVRInput.Touch.Two) && !OVRInput.Get(OVRInput.Touch.One))
+                        fillAmount += 0.02f;
+                    else
+                        fillAmount = 0.0f;
+
+                    if (fillAmount >= 1)
+                    {
+                        if (currentlySelected.tag != "RecentlyPlaced")
+                        {
+                            FilepathStorer fps = currentlySelected.GetComponent<FilepathStorer>();
+                            filesToDelete[fps.GetID()] = fps.GetFilepath();
+                        } 
+                        else
+                        {
+                            currentlySelected.tag = "Untagged";
+                        }
+                        Object.Destroy(currentlySelected);
+                        currentlySelected = null;
+                        fillAmount = 0.0f;
+                    }
+                }
+            }
+            else if (currentlySelected != null)
+            {
+                currentlySelected.GetComponent<MeshRenderer>().material.shader = tempShader;
+                currentlySelected = null;
+            }
+            else
+            {
+                fillAmount = 0.0f;
+            }
+            if (fillAmount > 0)
+                OVRInput.SetControllerVibration(0.0001f, 0.2f, OVRInput.Controller.RTouch);
+            else
+                OVRInput.SetControllerVibration(0, 0, OVRInput.Controller.RTouch);
+
+            deleteTimer.fillAmount = fillAmount;
         }
     }
 
@@ -375,8 +451,8 @@ public class OVRGrabber : MonoBehaviour
         }
 
         Rigidbody grabbedRigidbody = m_grabbedObj.grabbedRigidbody;
-        Vector3 grabbablePosition = pos + rot * m_grabbedObjectPosOff;
         Quaternion grabbableRotation = rot * m_grabbedObjectRotOff;
+        Vector3 grabbablePosition = pos + rot * m_grabbedObjectPosOff;
 
         if (forceTeleport)
         {

@@ -1,70 +1,194 @@
 fileFormatVersion: 2
 guid: eb8e07cd3e0ce494f81482c6835d2b10
 ModelImporter:
-  serializedVersion: 22
-  fileIDToRecycleName:
-    100000: rctrl:a_button_PLY
-    100002: rctrl:b_button01
-    100004: rctrl:b_button02
-    100006: rctrl:b_button03
-    100008: rctrl:b_button_PLY
-    100010: rctrl:b_hold
-    100012: rctrl:b_stick
-    100014: rctrl:b_stick_IGNORE
-    100016: rctrl:b_trigger
-    100018: rctrl:controller_body_PLY
-    100020: rctrl:geometry_null
-    100022: rctrl:main_trigger_PLY
-    100024: rctrl:o_button_decal_PLY
-    100026: rctrl:o_button_PLY
-    100028: rctrl:right_touch_controller_world
-    100030: rctrl:ring_PLY
-    100032: rctrl:side_trigger_PLY
-    100034: rctrl:surface_PLY
-    100036: rctrl:thumbstick_ball_PLY
-    100038: //RootNode
-    400000: rctrl:a_button_PLY
-    400002: rctrl:b_button01
-    400004: rctrl:b_button02
-    400006: rctrl:b_button03
-    400008: rctrl:b_button_PLY
-    400010: rctrl:b_hold
-    400012: rctrl:b_stick
-    400014: rctrl:b_stick_IGNORE
-    400016: rctrl:b_trigger
-    400018: rctrl:controller_body_PLY
-    400020: rctrl:geometry_null
-    400022: rctrl:main_trigger_PLY
-    400024: rctrl:o_button_decal_PLY
-    400026: rctrl:o_button_PLY
-    400028: rctrl:right_touch_controller_world
-    400030: rctrl:ring_PLY
-    400032: rctrl:side_trigger_PLY
-    400034: rctrl:surface_PLY
-    400036: rctrl:thumbstick_ball_PLY
-    400038: //RootNode
-    2100000: r_controller_mat
-    4300000: rctrl:o_button_decal_PLY
-    4300002: rctrl:surface_PLY
-    4300004: rctrl:ring_PLY
-    4300006: rctrl:controller_body_PLY
-    4300008: rctrl:main_trigger_PLY
-    4300010: rctrl:o_button_PLY
-    4300012: rctrl:thumbstick_ball_PLY
-    4300014: rctrl:side_trigger_PLY
-    4300016: rctrl:b_button_PLY
-    4300018: rctrl:a_button_PLY
-    9500000: //RootNode
-    13700000: rctrl:a_button_PLY
-    13700002: rctrl:b_button_PLY
-    13700004: rctrl:controller_body_PLY
-    13700006: rctrl:main_trigger_PLY
-    13700008: rctrl:o_button_decal_PLY
-    13700010: rctrl:o_button_PLY
-    13700012: rctrl:ring_PLY
-    13700014: rctrl:side_trigger_PLY
-    13700016: rctrl:surface_PLY
-    13700018: rctrl:thumbstick_ball_PLY
+  serializedVersion: 19301
+  internalIDToNameTable:
+  - first:
+      1: 100000
+    second: rctrl:a_button_PLY
+  - first:
+      1: 100002
+    second: rctrl:b_button01
+  - first:
+      1: 100004
+    second: rctrl:b_button02
+  - first:
+      1: 100006
+    second: rctrl:b_button03
+  - first:
+      1: 100008
+    second: rctrl:b_button_PLY
+  - first:
+      1: 100010
+    second: rctrl:b_hold
+  - first:
+      1: 100012
+    second: rctrl:b_stick
+  - first:
+      1: 100014
+    second: rctrl:b_stick_IGNORE
+  - first:
+      1: 100016
+    second: rctrl:b_trigger
+  - first:
+      1: 100018
+    second: rctrl:controller_body_PLY
+  - first:
+      1: 100020
+    second: rctrl:geometry_null
+  - first:
+      1: 100022
+    second: rctrl:main_trigger_PLY
+  - first:
+      1: 100024
+    second: rctrl:o_button_decal_PLY
+  - first:
+      1: 100026
+    second: rctrl:o_button_PLY
+  - first:
+      1: 100028
+    second: rctrl:right_touch_controller_world
+  - first:
+      1: 100030
+    second: rctrl:ring_PLY
+  - first:
+      1: 100032
+    second: rctrl:side_trigger_PLY
+  - first:
+      1: 100034
+    second: rctrl:surface_PLY
+  - first:
+      1: 100036
+    second: rctrl:thumbstick_ball_PLY
+  - first:
+      1: 100038
+    second: //RootNode
+  - first:
+      4: 400000
+    second: rctrl:a_button_PLY
+  - first:
+      4: 400002
+    second: rctrl:b_button01
+  - first:
+      4: 400004
+    second: rctrl:b_button02
+  - first:
+      4: 400006
+    second: rctrl:b_button03
+  - first:
+      4: 400008
+    second: rctrl:b_button_PLY
+  - first:
+      4: 400010
+    second: rctrl:b_hold
+  - first:
+      4: 400012
+    second: rctrl:b_stick
+  - first:
+      4: 400014
+    second: rctrl:b_stick_IGNORE
+  - first:
+      4: 400016
+    second: rctrl:b_trigger
+  - first:
+      4: 400018
+    second: rctrl:controller_body_PLY
+  - first:
+      4: 400020
+    second: rctrl:geometry_null
+  - first:
+      4: 400022
+    second: rctrl:main_trigger_PLY
+  - first:
+      4: 400024
+    second: rctrl:o_button_decal_PLY
+  - first:
+      4: 400026
+    second: rctrl:o_button_PLY
+  - first:
+      4: 400028
+    second: rctrl:right_touch_controller_world
+  - first:
+      4: 400030
+    second: rctrl:ring_PLY
+  - first:
+      4: 400032
+    second: rctrl:side_trigger_PLY
+  - first:
+      4: 400034
+    second: rctrl:surface_PLY
+  - first:
+      4: 400036
+    second: rctrl:thumbstick_ball_PLY
+  - first:
+      4: 400038
+    second: //RootNode
+  - first:
+      21: 2100000
+    second: r_controller_mat
+  - first:
+      43: 4300000
+    second: rctrl:o_button_decal_PLY
+  - first:
+      43: 4300002
+    second: rctrl:surface_PLY
+  - first:
+      43: 4300004
+    second: rctrl:ring_PLY
+  - first:
+      43: 4300006
+    second: rctrl:controller_body_PLY
+  - first:
+      43: 4300008
+    second: rctrl:main_trigger_PLY
+  - first:
+      43: 4300010
+    second: rctrl:o_button_PLY
+  - first:
+      43: 4300012
+    second: rctrl:thumbstick_ball_PLY
+  - first:
+      43: 4300014
+    second: rctrl:side_trigger_PLY
+  - first:
+      43: 4300016
+    second: rctrl:b_button_PLY
+  - first:
+      43: 4300018
+    second: rctrl:a_button_PLY
+  - first:
+      95: 9500000
+    second: //RootNode
+  - first:
+      137: 13700000
+    second: rctrl:a_button_PLY
+  - first:
+      137: 13700002
+    second: rctrl:b_button_PLY
+  - first:
+      137: 13700004
+    second: rctrl:controller_body_PLY
+  - first:
+      137: 13700006
+    second: rctrl:main_trigger_PLY
+  - first:
+      137: 13700008
+    second: rctrl:o_button_decal_PLY
+  - first:
+      137: 13700010
+    second: rctrl:o_button_PLY
+  - first:
+      137: 13700012
+    second: rctrl:ring_PLY
+  - first:
+      137: 13700014
+    second: rctrl:side_trigger_PLY
+  - first:
+      137: 13700016
+    second: rctrl:surface_PLY
+  - first:
+      137: 13700018
+    second: rctrl:thumbstick_ball_PLY
   externalObjects:
   - first:
       type: UnityEngine:Material
@@ -72,7 +196,7 @@ ModelImporter:
       name: r_controller_mat
     second: {fileID: 2100000, guid: eacafe280fdfa6a44845c135057ae6a5, type: 2}
   materials:
-    importMaterials: 1
+    materialImportMode: 1
     materialName: 0
     materialSearch: 1
     materialLocation: 1
@@ -89,6 +213,7 @@ ModelImporter:
     animationRetargetingWarnings: 
     animationDoRetargetingWarnings: 0
     importAnimatedCustomProperties: 0
+    importConstraints: 0
     animationCompression: 1
     animationRotationError: 0.5
     animationPositionError: 0.5
@@ -97,23 +222,29 @@ ModelImporter:
     extraExposedTransformPaths: []
     extraUserProperties: []
     clipAnimations: []
-    isReadable: 1
+    isReadable: 0
   meshes:
     lODScreenPercentages: []
     globalScale: 1
     meshCompression: 0
     addColliders: 0
+    useSRGBMaterialColor: 1
+    sortHierarchyByName: 1
     importVisibility: 1
     importBlendShapes: 1
     importCameras: 1
     importLights: 1
+    fileIdsGeneration: 1
     swapUVChannels: 0
     generateSecondaryUV: 0
     useFileUnits: 1
-    optimizeMeshForGPU: 1
     keepQuads: 0
     weldVertices: 1
     preserveHierarchy: 0
+    skinWeightsMode: 0
+    maxBonesPerVertex: 4
+    minBoneWeight: 0.001
+    meshOptimizationFlags: -1
     indexFormat: 0
     secondaryUVAngleDistortion: 8
     secondaryUVAreaDistortion: 15.000001
@@ -125,10 +256,13 @@ ModelImporter:
     normalImportMode: 0
     tangentImportMode: 3
     normalCalculationMode: 4
+    legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 1
+    blendShapeNormalImportMode: 1
+    normalSmoothingSource: 0
+  referencedClips: []
   importAnimation: 1
-  copyAvatar: 0
   humanDescription:
-    serializedVersion: 2
+    serializedVersion: 3
     human: []
     skeleton: []
     armTwist: 0.5
@@ -138,14 +272,16 @@ ModelImporter:
     armStretch: 0.05
     legStretch: 0.05
     feetSpacing: 0
+    globalScale: 1
     rootMotionBoneName: 
-    rootMotionBoneRotation: {x: 0, y: 0, z: 0, w: 1}
     hasTranslationDoF: 0
     hasExtraRoot: 0
     skeletonHasParents: 1
   lastHumanDescriptionAvatarSource: {instanceID: 0}
+  autoGenerateAvatarMappingIfUnspecified: 1
   animationType: 2
   humanoidOversampling: 1
+  avatarSetup: 1
   additionalBone: 0
   userData: 
   assetBundleName: 

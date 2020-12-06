@@ -56,10 +56,6 @@ public class VRTeleporter : MonoBehaviour
         displayActive = active;
     }
 
-
-
-
-
     private void Awake()
     {
         arcRenderer = GetComponent<LineRenderer>();

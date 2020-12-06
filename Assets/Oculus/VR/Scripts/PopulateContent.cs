@@ -30,8 +30,6 @@ public class PopulateContent : MonoBehaviour
 
 	GameObject changedElem = null;
 
-	public ColorPickerTriangle colorPicker;
-
 	private Object[] items;
 	private string[] menus = new string[2] { "Polygon", "Custom Prefabs"};
 	private int idx = 0;
@@ -40,7 +38,7 @@ public class PopulateContent : MonoBehaviour
 
 	void Start()
 	{
-		colorPicker.gameObject.SetActive(false);
+
 	}
 
 	void Update()
@@ -84,8 +82,6 @@ public class PopulateContent : MonoBehaviour
 
 		if (true)
         {
-			colorPicker.gameObject.SetActive(true);
-
 			string path = Application.persistentDataPath + "/" + menus[idx];
 
 			if (!Directory.Exists(path))
@@ -128,10 +124,6 @@ public class PopulateContent : MonoBehaviour
 				lab.Unload(false);
 			}
 		} else {
-			colorPicker.gameObject.SetActive(false);
-			if (menus[idx] == "Lights")
-				colorPicker.gameObject.SetActive(true);
-
 			items = Resources.LoadAll(menus[idx], typeof(GameObject));
 			resourcesSize = items.Length;
 			items = items.Skip(row).Take(numberToCreate).Cast<Object>().ToArray();
@@ -150,45 +142,27 @@ public class PopulateContent : MonoBehaviour
 				elements.Add(newObj);
 			}
 		}
-		UpdateColor();
 	}
 
 	private void ConfigureNewObject(GameObject newObj)
     {
-		//newObj.transform.Rotate(0, Random.Range(0, 360), 0); //initialize at different y rotations (for aesthetics)
 		newObj.transform.parent = transform;
 		var MySize = newObj.GetComponent<Renderer>().bounds.size;
 		var MaxSize = 1 / Mathf.Max(MySize.x, Mathf.Max(MySize.y, MySize.z));
 		newObj.transform.localScale = objScale * new Vector3(MaxSize, MaxSize, MaxSize); ;
 
-		// Randomize the color of our image
-		//newObj.GetComponent<Renderer>().material.color = colorPicker.TheColor;
-
 		elements.Add(newObj);
-	}
-
-	public void UpdateColor()
-	{
-		foreach (GameObject el in elements)
-		{
-			//el.GetComponent<Renderer>().material.color = colorPicker.TheColor;
-			foreach (Transform child in el.transform)
-				if (child.gameObject.GetComponent<Light>() != null)
-					child.gameObject.GetComponent<Light>().color = colorPicker.TheColor;
-		}
 	}
 
 	public void Enable()
     {
 		canvas.enabled = true;
-		colorPicker.gameObject.SetActive(true);
 		Populate();
 	}
 
 	public void Disable()
 	{
 		canvas.enabled = false;
-		colorPicker.gameObject.SetActive(false);
 		Clear();
 	}
 
