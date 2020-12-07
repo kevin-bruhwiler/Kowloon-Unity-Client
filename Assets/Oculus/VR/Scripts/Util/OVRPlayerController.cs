@@ -139,6 +139,8 @@ public class OVRPlayerController : MonoBehaviour
 	public Canvas ui;
 	public Canvas menu;
 	public PopulateContent uiContents;
+	public updater up;
+	private Vector3 lastPosition;
 
 	protected CharacterController Controller = null;
 	protected OVRCameraRig CameraRig = null;
@@ -165,6 +167,7 @@ public class OVRPlayerController : MonoBehaviour
 		var p = CameraRig.transform.localPosition;
 		p.z = OVRManager.profile.eyeDepth;
 		CameraRig.transform.localPosition = p;
+		lastPosition = transform.position;
 	}
 
 	void Awake()
@@ -294,6 +297,14 @@ public class OVRPlayerController : MonoBehaviour
 		}
 
 		CameraHeight = CameraRig.centerEyeAnchor.localPosition.y;
+
+		if (Math.Truncate(lastPosition.x / 500) != Math.Truncate(transform.position.x / 500) ||
+			Math.Truncate(lastPosition.y / 500) != Math.Truncate(transform.position.y / 500) ||
+			Math.Truncate(lastPosition.z / 500) != Math.Truncate(transform.position.z / 500))
+        {
+			up.DownloadObjectsAtBlock();
+		}
+		lastPosition = transform.position;
 
 		if (CameraUpdated != null)
 		{

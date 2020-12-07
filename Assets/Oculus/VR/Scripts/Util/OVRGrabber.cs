@@ -195,7 +195,8 @@ public class OVRGrabber : MonoBehaviour
             {
                 RaycastHit hitPoint;
                 Ray ray = new Ray(rightHandAnchor.transform.position + rightHandAnchor.transform.TransformDirection(new Vector3(0.05f, 0, 0)), rightHandAnchor.transform.forward);
-                if (Physics.Raycast(ray, out hitPoint, Mathf.Infinity) && hitPoint.collider.gameObject.GetComponent<MeshRenderer>() != null && currentlySelected != hitPoint.collider.gameObject)
+                if (Physics.Raycast(ray, out hitPoint, Mathf.Infinity) && hitPoint.collider.gameObject.GetComponent<MeshRenderer>() != null && 
+                    currentlySelected != hitPoint.collider.gameObject && hitPoint.collider.gameObject.name != "Floor")
                 {
                     if (currentlySelected != null)
                         currentlySelected.GetComponent<MeshRenderer>().material.shader = tempShader;
@@ -215,7 +216,7 @@ public class OVRGrabber : MonoBehaviour
                         if (currentlySelected.tag != "RecentlyPlaced")
                         {
                             FilepathStorer fps = currentlySelected.GetComponent<FilepathStorer>();
-                            filesToDelete[fps.GetID()] = fps.GetFilepath();
+                            filesToDelete[fps.GetID()+","+ fps.GetFilepath()] = currentlySelected.transform.position;
                         } 
                         else
                         {

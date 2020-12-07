@@ -31,7 +31,7 @@ public class PopulateContent : MonoBehaviour
 	GameObject changedElem = null;
 
 	private Object[] items;
-	private string[] menus = new string[2] { "Polygon", "Custom Prefabs"};
+	private string[] menus = new string[6] { "Polygons", "Lights", "Foliage", "Roads", "Street Props", "Custom Prefabs"};
 	private int idx = 0;
 	private int row = 0;
 	private int resourcesSize = 0;
@@ -82,7 +82,7 @@ public class PopulateContent : MonoBehaviour
 
 		if (true)
         {
-			string path = Application.persistentDataPath + "/" + menus[idx];
+			string path = Application.persistentDataPath + "/LoadedAssetBundles/" + menus[idx];
 
 			if (!Directory.Exists(path))
 				Directory.CreateDirectory(path);
@@ -101,10 +101,12 @@ public class PopulateContent : MonoBehaviour
 				{
 					if (assetName.EndsWith(".prefab"))
                     {
-						float x = 8 + horizontalSpacing * j % (horizontalSpacing * numColumns);
-						float y = -8 - verticalSpacing * Mathf.Floor(j / numColumns);
+						float x = 8 + horizontalSpacing * (j - row) % (horizontalSpacing * numColumns);
+						float y = -8 - verticalSpacing * Mathf.Floor((j - row) / numColumns);
 						Vector3 pos = view.transform.TransformPoint(new Vector3(x, y, 0));
 						j += 1;
+						if (j <= row)
+							continue;
 
 						var prefab = lab.LoadAsset<GameObject>(assetName);
 						newObj = (GameObject)Instantiate(prefab, pos, transform.rotation);
@@ -118,10 +120,15 @@ public class PopulateContent : MonoBehaviour
 						fps.SetPrefabName(assetName);
 
 						ConfigureNewObject(newObj);
+						if (j == row + numberToCreate)
+							break;
 					}
 				}
 
 				lab.Unload(false);
+				resourcesSize = j;
+				if (j == row + numberToCreate)
+					break;
 			}
 		} else {
 			items = Resources.LoadAll(menus[idx], typeof(GameObject));
@@ -147,9 +154,11 @@ public class PopulateContent : MonoBehaviour
 	private void ConfigureNewObject(GameObject newObj)
     {
 		newObj.transform.parent = transform;
-		var MySize = newObj.GetComponent<Renderer>().bounds.size;
+		var MySize = newObj.GetComponent<Collider>().bounds.size;
 		var MaxSize = 1 / Mathf.Max(MySize.x, Mathf.Max(MySize.y, MySize.z));
-		newObj.transform.localScale = objScale * new Vector3(MaxSize, MaxSize, MaxSize); ;
+		if (MaxSize <= 0)
+			MaxSize = 1f;
+		newObj.transform.localScale = objScale * new Vector3(MaxSize, MaxSize, MaxSize);
 
 		elements.Add(newObj);
 	}

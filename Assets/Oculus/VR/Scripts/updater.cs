@@ -17,10 +17,10 @@ public class updater : MonoBehaviour
     public OVRPlayerController player;
     public Button uploadButton;
     public Button quitButton;
-    public Button downloadButton;
     public Canvas menu;
     public OVRGrabber rightHandGrabber;
     private CharacterController cc;
+    private string storageDir;
 
     // Start is called before the first frame update
     void Start()
@@ -28,14 +28,17 @@ public class updater : MonoBehaviour
         cc = player.GetComponent<CharacterController>();
         cc.enabled = true;
 
+        storageDir = Application.persistentDataPath + "/LoadedAssetBundles/";
+
         Button btn = uploadButton.GetComponent<Button>();
         btn.onClick.AddListener(UploadRecentlyPlacedObjects);
 
         btn = quitButton.GetComponent<Button>();
         btn.onClick.AddListener(Application.Quit);
 
-        btn = downloadButton.GetComponent<Button>();
-        btn.onClick.AddListener(DownloadObjectsAtBlock);
+        //btn = downloadButton.GetComponent<Button>();
+        //btn.onClick.AddListener(DownloadObjectsAtBlock);
+        DownloadObjectsAtBlock();
     }
 
     // Update is called once per frame
@@ -64,6 +67,7 @@ public class updater : MonoBehaviour
         foreach (GameObject go in placedObjects)
         {
             FilepathStorer fps = go.GetComponent<FilepathStorer>();
+            go.tag = "Untagged";
             int id = go.GetInstanceID();
             var file = JSON.Parse("{}");
             file["filepath"] = fps.GetFilename();
@@ -83,6 +87,8 @@ public class updater : MonoBehaviour
                 file["convex"] = go.GetComponent<MeshCollider>().convex;
 
             file["bundle"] = Convert.ToBase64String(File.ReadAllBytes(fps.GetFilepath()));
+            //Copy bundle to storage dir
+            File.WriteAllBytes(storageDir + fps.GetFilename(), Convert.FromBase64String(file["bundle"]));
 
             files[""+id] = file;
         }
@@ -91,16 +97,29 @@ public class updater : MonoBehaviour
         StartCoroutine(Post("http://localhost:5000/transactions/new/unsigned", files.ToString()));
     }
 
-    void DownloadObjectsAtBlock()
+    public void DownloadObjectsAtBlock()
     {
         Vector3 pos = player.transform.position;
-        var location = JSON.Parse("{index: [" + pos[0] + ", " + pos[1] + ", " + pos[2] + "],}");
+        string metadataPath = Application.persistentDataPath + "/metadata.json";
+        string loc = "[" + Math.Truncate(pos[0] / 500) + ", " + Math.Truncate(pos[1] / 500) + ", " + Math.Truncate(pos[2] / 500) + "]";
+
+        if (!File.Exists(metadataPath))
+            File.WriteAllText(metadataPath, JSON.Parse("{}").ToString());
+
+        var metadata = JSON.Parse(File.ReadAllText(metadataPath));
+        if (metadata[loc] == null)
+            metadata[loc] = 0;
+
+        var location = JSON.Parse("{index: " + loc + ", time: " + metadata[loc] + "}");
         StartCoroutine(Post("http://localhost:5000/grid/index", location.ToString()));
+        metadata[loc] = DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond;
+        File.WriteAllText(metadataPath, metadata.ToString());
+
+        PopulateWorld(JSON.Parse(File.ReadAllText(Application.persistentDataPath + "/" + loc + ".json")), JSON.Parse("{}"));
     }
 
     void PopulateWorld(JSONNode data, JSONNode bundles)
     {
-        string storageDir = Application.persistentDataPath + "/LoadedAssetBundles/";
         if (!Directory.Exists(storageDir))
             Directory.CreateDirectory(storageDir);
 
@@ -158,11 +177,6 @@ public class updater : MonoBehaviour
                     lab.Unload(false);
                 }
 
-                //DirectoryInfo dir = new DirectoryInfo(downloadedDir);
-                //FileInfo[] info = dir.GetFiles("*.*");
-                //for (int i = 0; i < info.Length; i++)
-                //    Instantiate(AssetDatabase.LoadAssetAtPath("DownloadedObjects/" + info[i].Name, typeof(UnityEngine.Object)) as GameObject);
-
                 break;
             }
         }
@@ -180,7 +194,13 @@ public class updater : MonoBehaviour
         var response = JSON.Parse(request.downloadHandler.text);
         Debug.Log("Status Code: " + request.responseCode);
         if (response != null && response["type"] == "grid/index")
-            PopulateWorld(response["block"]["data"], response["bundles"]);
+        {
+            PopulateWorld(response["block"], response["bundles"]);
+
+            Vector3 pos = player.transform.position;
+            string loc = "[" + Math.Truncate(pos[0] / 500) + ", " + Math.Truncate(pos[1] / 500) + ", " + Math.Truncate(pos[2] / 500) + "]";
+            File.WriteAllText(Application.persistentDataPath + "/" + loc + ".json", response["block"]["data"].ToString());
+        }
     }
 
 }
