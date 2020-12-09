@@ -31,7 +31,7 @@ public class PopulateContent : MonoBehaviour
 	GameObject changedElem = null;
 
 	private Object[] items;
-	private string[] menus = new string[6] { "Polygons", "Lights", "Foliage", "Roads", "Street Props", "Custom Prefabs"};
+	private string[] menus = new string[8] { "Polygons", "Lights", "Foliage", "Roads", "Street Props", "Cyberpunk", "Utopian", "Custom Prefabs" };
 	private int idx = 0;
 	private int row = 0;
 	private int resourcesSize = 0;
@@ -156,8 +156,9 @@ public class PopulateContent : MonoBehaviour
 		newObj.transform.parent = transform;
 		var MySize = newObj.GetComponent<Collider>().bounds.size;
 		var MaxSize = 1 / Mathf.Max(MySize.x, Mathf.Max(MySize.y, MySize.z));
-		if (MaxSize <= 0)
-			MaxSize = 1f;
+		if (MaxSize <= 0 || MaxSize == float.PositiveInfinity)
+			MaxSize = 0.001f;
+
 		newObj.transform.localScale = objScale * new Vector3(MaxSize, MaxSize, MaxSize);
 
 		elements.Add(newObj);
@@ -181,6 +182,8 @@ public class PopulateContent : MonoBehaviour
 			idx = (((idx + 1) % menus.Length) + menus.Length) % menus.Length;
 		else
 			idx = (((idx - 1) % menus.Length) + menus.Length) % menus.Length;
+
+		row = 0;
 	}
 
 	public void IncrementRow(bool pos)
@@ -189,6 +192,7 @@ public class PopulateContent : MonoBehaviour
 			row = Mathf.Max((row - numColumns) % resourcesSize, 0);
 		else
 			row = Mathf.Min((row + numColumns) % resourcesSize, resourcesSize);
+
 	}
 
 	public void Clear()
