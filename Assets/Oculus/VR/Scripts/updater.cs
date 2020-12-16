@@ -86,9 +86,10 @@ public class updater : MonoBehaviour
             if (file["meshcollider"])
                 file["convex"] = go.GetComponent<MeshCollider>().convex;
 
-            file["bundle"] = Convert.ToBase64String(File.ReadAllBytes(fps.GetFilepath()));
+            byte[] f = File.ReadAllBytes(fps.GetFilepath());
+            file["bundle"] = CompressionHelper.CompressString(Convert.ToBase64String(f));
             //Copy bundle to storage dir
-            File.WriteAllBytes(storageDir + fps.GetFilename(), Convert.FromBase64String(file["bundle"]));
+            File.WriteAllBytes(storageDir + fps.GetFilename(), f);
 
             files[""+id] = file;
         }
@@ -125,7 +126,7 @@ public class updater : MonoBehaviour
 
         for (int k = 0; k < bundles.Count; k++)
         {
-            File.WriteAllBytes(storageDir + bundles[k][0], Convert.FromBase64String(bundles[k][1]));
+            File.WriteAllBytes(storageDir + bundles[k][0], Convert.FromBase64String(CompressionHelper.DecompressString(bundles[k][1])));
         }
 
         for (int k = 0; k < data.Count; k++)
