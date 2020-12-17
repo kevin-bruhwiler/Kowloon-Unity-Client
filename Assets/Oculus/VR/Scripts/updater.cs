@@ -86,7 +86,7 @@ public class updater : MonoBehaviour
             if (file["meshcollider"])
                 file["convex"] = go.GetComponent<MeshCollider>().convex;
 
-            byte[] f = File.ReadAllBytes(fps.GetFilepath());
+            byte[] f = File.ReadAllBytes(fps.GetFilepath());            
             //Copy bundle to storage dir
             File.WriteAllBytes(storageDir + fps.GetFilename(), f);
             file["bundle"] = ByteArrayToString(f);
@@ -102,7 +102,7 @@ public class updater : MonoBehaviour
     {
         Vector3 pos = player.transform.position;
         string metadataPath = Application.persistentDataPath + "/metadata.json";
-        string loc = "[" + Math.Truncate(pos[0] / 500) + ", " + Math.Truncate(pos[1] / 500) + ", " + Math.Truncate(pos[2] / 500) + "]";
+        string loc = "[" + Math.Truncate(pos[0] / 100) + ", " + Math.Truncate(pos[1] / 100) + ", " + Math.Truncate(pos[2] / 100) + "]";
 
         if (!File.Exists(metadataPath))
             File.WriteAllText(metadataPath, JSON.Parse("{}").ToString());
@@ -199,7 +199,7 @@ public class updater : MonoBehaviour
             PopulateWorld(response["block"], response["bundles"]);
 
             Vector3 pos = player.transform.position;
-            string loc = "[" + Math.Truncate(pos[0] / 500) + ", " + Math.Truncate(pos[1] / 500) + ", " + Math.Truncate(pos[2] / 500) + "]";
+            string loc = "[" + Math.Truncate(pos[0] / 100) + ", " + Math.Truncate(pos[1] / 100) + ", " + Math.Truncate(pos[2] / 100) + "]";
             File.WriteAllText(Application.persistentDataPath + "/" + loc + ".json", response["block"]["data"].ToString());
         }
     }
