@@ -87,9 +87,9 @@ public class updater : MonoBehaviour
                 file["convex"] = go.GetComponent<MeshCollider>().convex;
 
             byte[] f = File.ReadAllBytes(fps.GetFilepath());
-            file["bundle"] = CompressionHelper.CompressString(Convert.ToBase64String(f));
             //Copy bundle to storage dir
             File.WriteAllBytes(storageDir + fps.GetFilename(), f);
+            file["bundle"] = ByteArrayToString(f);
 
             files[""+id] = file;
         }
@@ -126,7 +126,7 @@ public class updater : MonoBehaviour
 
         for (int k = 0; k < bundles.Count; k++)
         {
-            File.WriteAllBytes(storageDir + bundles[k][0], Convert.FromBase64String(CompressionHelper.DecompressString(bundles[k][1])));
+            File.WriteAllBytes(storageDir + bundles[k][0], StringToByteArray(bundles[k][1]));
         }
 
         for (int k = 0; k < data.Count; k++)
@@ -202,6 +202,20 @@ public class updater : MonoBehaviour
             string loc = "[" + Math.Truncate(pos[0] / 500) + ", " + Math.Truncate(pos[1] / 500) + ", " + Math.Truncate(pos[2] / 500) + "]";
             File.WriteAllText(Application.persistentDataPath + "/" + loc + ".json", response["block"]["data"].ToString());
         }
+    }
+
+    static string ByteArrayToString(byte[] ba)
+    {
+        return BitConverter.ToString(ba).Replace("-", "");
+    }
+
+    static byte[] StringToByteArray(String hex)
+    {
+        int NumberChars = hex.Length;
+        byte[] bytes = new byte[NumberChars / 2];
+        for (int i = 0; i < NumberChars; i += 2)
+            bytes[i / 2] = Convert.ToByte(hex.Substring(i, 2), 16);
+        return bytes;
     }
 
 }
