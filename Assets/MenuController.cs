@@ -25,7 +25,7 @@ public class MenuController : MonoBehaviour
         if (canvas.enabled)
         {
             Vector2 inp = OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick);
-            if (Mathf.Abs(inp[1]) > Mathf.Abs(inp[0]) & System.DateTime.Now.Ticks - changedTime > 1000000)
+            if (Mathf.Abs(inp[1]) > Mathf.Abs(inp[0]) && System.DateTime.Now.Ticks - changedTime > 10000000)
             {
                 changedTime = System.DateTime.Now.Ticks;
                 if (inp[1] > 0)
@@ -33,7 +33,6 @@ public class MenuController : MonoBehaviour
                 else
                     activeIndex = (((activeIndex - 1) % buttons.Length) + buttons.Length) % buttons.Length;
 
-                
                 buttons[activeIndex].Select();
             }
 

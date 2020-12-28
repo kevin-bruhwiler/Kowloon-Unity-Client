@@ -8,6 +8,7 @@ using UnityEngine.Networking;
 using UnityEngine.UI;
 using UnityEditor;
 using SimpleJSON;
+using System.IO.Compression;
 
 
 public class updater : MonoBehaviour
@@ -15,18 +16,33 @@ public class updater : MonoBehaviour
 
     public VRTeleporter teleporter;
     public OVRPlayerController player;
+    public Button controlsButton;
     public Button uploadButton;
     public Button quitButton;
     public Canvas menu;
     public OVRGrabber rightHandGrabber;
+    public Canvas controls;
     private CharacterController cc;
     private string storageDir;
+
+    private Dictionary<string, string> baseBundles = new Dictionary<string, string>
+        {
+            { "cyberpunk1", "Cyberpunk/" },
+            { "foliage1", "Foliage/" },
+            { "light", "Lights/" },
+            { "polygon", "Polygons/" },
+            { "road", "Roads/" },
+            { "streetprops", "Street Props/"},
+            { "utopia", "Utopian/" }
+        };
 
     // Start is called before the first frame update
     void Start()
     {
         cc = player.GetComponent<CharacterController>();
         cc.enabled = true;
+
+        controls.enabled = false;
 
         storageDir = Application.persistentDataPath + "/LoadedAssetBundles/";
 
@@ -36,8 +52,9 @@ public class updater : MonoBehaviour
         btn = quitButton.GetComponent<Button>();
         btn.onClick.AddListener(Application.Quit);
 
-        //btn = downloadButton.GetComponent<Button>();
-        //btn.onClick.AddListener(DownloadObjectsAtBlock);
+        btn = controlsButton.GetComponent<Button>();
+        btn.onClick.AddListener(showControls);
+
         DownloadObjectsAtBlock();
     }
 
@@ -60,9 +77,15 @@ public class updater : MonoBehaviour
         }
     }
 
+    void showControls()
+    {
+        controls.enabled = !controls.enabled;
+    }
+
     void UploadRecentlyPlacedObjects()
     {
         GameObject[] placedObjects = GameObject.FindGameObjectsWithTag("RecentlyPlaced");
+        List<(byte[], string)> bundles = new List<(byte[], string)>();
         var files = JSON.Parse("{}");
         foreach (GameObject go in placedObjects)
         {
@@ -89,13 +112,16 @@ public class updater : MonoBehaviour
             byte[] f = File.ReadAllBytes(fps.GetFilepath());            
             //Copy bundle to storage dir
             File.WriteAllBytes(storageDir + fps.GetFilename(), f);
-            file["bundle"] = ByteArrayToString(f);
+            bundles.Add((f, file["filepath"]));
+            //file["bundle"] = f; //ByteArrayToString(f);
 
             files[""+id] = file;
         }
         files["delete"] = rightHandGrabber.filesToDelete;
 
-        StartCoroutine(Post("http://localhost:5000/transactions/new/unsigned", files.ToString()));
+        //StartCoroutine(Post("http://kowloon.us-east-2.elasticbeanstalk.com/transactions/new/unsigned", files.ToString()));
+        //StartCoroutine(Post("http://localhost:5000/transactions/new/unsigned", files.ToString()));
+        StartCoroutine(MultipartPost("http://localhost:5000/transactions/new/unsigned", files.ToString(), bundles));
     }
 
     public void DownloadObjectsAtBlock()
@@ -112,76 +138,115 @@ public class updater : MonoBehaviour
             metadata[loc] = 0;
 
         var location = JSON.Parse("{index: " + loc + ", time: " + metadata[loc] + "}");
-        StartCoroutine(Post("http://localhost:5000/grid/index", location.ToString()));
+        //StartCoroutine(Post("http://kowloon.us-east-2.elasticbeanstalk.com/grid/index", location.ToString()));
+        StartCoroutine(Post("http://localhost:5000/grid/index/bundles", location.ToString()));
         metadata[loc] = DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond;
         File.WriteAllText(metadataPath, metadata.ToString());
 
-        PopulateWorld(JSON.Parse(File.ReadAllText(Application.persistentDataPath + "/" + loc + ".json")), JSON.Parse("{}"));
+        PopulateWorld(JSON.Parse(File.ReadAllText(Application.persistentDataPath + "/" + loc + ".json")));
     }
 
-    void PopulateWorld(JSONNode data, JSONNode bundles)
+    void SaveBundles(byte[] bundles)
+    {
+        if (bundles != null)
+        {
+            string zipPath = storageDir + "/temp.zip";
+            File.WriteAllBytes(zipPath, bundles);
+            using (ZipArchive archive = ZipFile.OpenRead(zipPath))
+            {
+                foreach (ZipArchiveEntry entry in archive.Entries)
+                {
+                    if (baseBundles.ContainsKey(entry.FullName))
+                    {
+                        entry.ExtractToFile(storageDir + baseBundles[entry.FullName] + entry.FullName);
+                    }
+                    entry.ExtractToFile(storageDir + entry.FullName);
+                }
+            }
+            File.Delete(zipPath);
+        }
+    }
+
+    void PopulateWorld(JSONNode data)
     {
         if (!Directory.Exists(storageDir))
             Directory.CreateDirectory(storageDir);
-
-        for (int k = 0; k < bundles.Count; k++)
+        
+        if(data != null)
         {
-            File.WriteAllBytes(storageDir + bundles[k][0], StringToByteArray(bundles[k][1]));
-        }
-
-        for (int k = 0; k < data.Count; k++)
-        {
-            foreach (JSONNode o in data[k].Children)
+            for (int k = 0; k < data.Count; k++)
             {
-                foreach (KeyValuePair<string, JSONNode> kvp in (JSONObject)JSON.Parse(o))
+                foreach (JSONNode o in data[k].Children)
                 {
-                    if (kvp.Key == "delete")
-                        continue;
-                    var lab = AssetBundle.LoadFromFile(storageDir + kvp.Value["filepath"]);
-
-                    foreach (string assetName in lab.GetAllAssetNames())
+                    foreach (KeyValuePair<string, JSONNode> kvp in (JSONObject)JSON.Parse(o))
                     {
-                        if (assetName == kvp.Value["prefabName"]) // && Physics.OverlapSphere(kvp.Value["position"], 0).Length == 1)
+                        if (kvp.Key == "delete")
+                            continue;
+                        var lab = AssetBundle.LoadFromFile(storageDir + kvp.Value["filepath"]);
+
+                        foreach (string assetName in lab.GetAllAssetNames())
                         {
-                            var prefab = lab.LoadAsset<GameObject>(assetName);
-                            GameObject go = (GameObject)Instantiate(prefab, kvp.Value["position"], kvp.Value["rotation"]);
-                            go.transform.localScale = kvp.Value["scale"];
+                            if (assetName == kvp.Value["prefabName"]) // && Physics.OverlapSphere(kvp.Value["position"], 0).Length == 1)
+                            {
+                                var prefab = lab.LoadAsset<GameObject>(assetName);
+                                GameObject go = (GameObject)Instantiate(prefab, kvp.Value["position"], kvp.Value["rotation"]);
+                                go.transform.localScale = kvp.Value["scale"];
 
-                            FilepathStorer fps = go.AddComponent(typeof(FilepathStorer)) as FilepathStorer;
-                            fps.SetFilepath(kvp.Value["filepath"]);
-                            fps.SetID(kvp.Key);
+                                FilepathStorer fps = go.AddComponent(typeof(FilepathStorer)) as FilepathStorer;
+                                fps.SetFilepath(kvp.Value["filepath"]);
+                                fps.SetID(kvp.Key);
 
-                            if (kvp.Value["rigidbody"])
-                            {
-                                Rigidbody rb = go.GetComponent<Rigidbody>();
-                                rb.useGravity = kvp.Value["gravity"];
-                                rb.isKinematic = kvp.Value["kinematic"];
-                            } 
-                            else
-                            {
-                                Destroy(go.GetComponent<Rigidbody>());
+                                if (kvp.Value["rigidbody"])
+                                {
+                                    Rigidbody rb = go.GetComponent<Rigidbody>();
+                                    rb.useGravity = kvp.Value["gravity"];
+                                    rb.isKinematic = kvp.Value["kinematic"];
+                                }
+                                else
+                                {
+                                    Destroy(go.GetComponent<Rigidbody>());
+                                }
+                                if (kvp.Value["meshcollider"])
+                                {
+                                    MeshCollider mc = go.GetComponent<MeshCollider>();
+                                    mc.convex = kvp.Value["convex"];
+                                }
+                                else
+                                {
+                                    Destroy(go.GetComponent<MeshCollider>());
+                                }
+                                if (!kvp.Value["grabbable"])
+                                    Destroy(go.GetComponent<OVRGrabbable>());
                             }
-                            if (kvp.Value["meshcollider"])
-                            {
-                                MeshCollider mc = go.GetComponent<MeshCollider>();
-                                mc.convex = kvp.Value["convex"];
-                            }
-                            else
-                            {
-                                Destroy(go.GetComponent<MeshCollider>());
-                            }
-                            if (!kvp.Value["grabbable"])
-                                Destroy(go.GetComponent<OVRGrabbable>());
                         }
+
+                        lab.Unload(false);
                     }
 
-                    lab.Unload(false);
+                    break;
                 }
-
-                break;
             }
         }
-        
+    }
+
+    IEnumerator MultipartPost(string url, string bodyJsonString, List<(byte[], string)> bundles)
+    {
+        List<IMultipartFormSection> formData = new List<IMultipartFormSection>();
+        Debug.Log(bundles.Count);
+        foreach ((byte[], string) bundle in bundles)
+        {
+            Debug.Log(bundle.Item2);
+            formData.Add(new MultipartFormFileSection(bundle.Item2, bundle.Item1, bundle.Item2, null));
+        }
+        formData.Add(new MultipartFormDataSection(bodyJsonString));
+        Debug.Log(formData.Count);
+
+        var request = UnityWebRequest.Post(url, formData);
+        //request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
+        yield return request.SendWebRequest();
+        var response = JSON.Parse(request.downloadHandler.text);
+        Debug.Log(request);
+        Debug.Log(response);
     }
 
     IEnumerator Post(string url, string bodyJsonString)
@@ -192,17 +257,34 @@ public class updater : MonoBehaviour
         request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
         request.SetRequestHeader("Content-Type", "application/json");
         yield return request.SendWebRequest();
-        var response = JSON.Parse(request.downloadHandler.text);
-        Debug.Log("Status Code: " + request.responseCode);
-        if (response != null && response["type"] == "grid/index")
+        Debug.Log(request.responseCode);
+
+        if (request.downloadHandler.data != null)
         {
-            PopulateWorld(response["block"], response["bundles"]);
+            SaveBundles(request.downloadHandler.data);
+
+            /*
+            PopulateWorld(block, response.FileContents);
 
             Vector3 pos = player.transform.position;
             string loc = "[" + Math.Truncate(pos[0] / 100) + ", " + Math.Truncate(pos[1] / 100) + ", " + Math.Truncate(pos[2] / 100) + "]";
-            File.WriteAllText(Application.persistentDataPath + "/" + loc + ".json", response["block"]["data"].ToString());
+            File.WriteAllText(Application.persistentDataPath + "/" + loc + ".json", block.ToString());
+            */
         }
     }
+
+
+
+    static Stream GenerateStreamFromString(string s)
+    {
+        var stream = new MemoryStream();
+        var writer = new StreamWriter(stream);
+        writer.Write(s);
+        writer.Flush();
+        stream.Position = 0;
+        return stream;
+    }
+
 
     static string ByteArrayToString(byte[] ba)
     {
