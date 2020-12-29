@@ -124,7 +124,7 @@ public class updater : MonoBehaviour
         }
         files["delete"] = rightHandGrabber.filesToDelete;
 
-        StartCoroutine(MultipartPost("http://kowloon-env.eba-hc3agzzc.us-east-2.elasticbeanstalk.com//transactions/new/unsigned", files.ToString(), bundles));
+        StartCoroutine(MultipartPost("http://kowloon-env.eba-hc3agzzc.us-east-2.elasticbeanstalk.com/transactions/new/unsigned", files.ToString(), bundles));
         //StartCoroutine(Post("http://localhost:5000/transactions/new/unsigned", files.ToString()));
         //StartCoroutine(MultipartPost("http://localhost:5000/transactions/new/unsigned", files.ToString(), bundles));
     }
@@ -142,7 +142,7 @@ public class updater : MonoBehaviour
             metadata[loc] = 0;
 
         var location = JSON.Parse("{index: " + loc + ", time: " + metadata[loc] + "}");
-        StartCoroutine(PostGetFile("http://kowloon-env.eba-hc3agzzc.us-east-2.elasticbeanstalk.com//grid/index/bundles", location.ToString()));
+        StartCoroutine(PostGetFile("http://kowloon-env.eba-hc3agzzc.us-east-2.elasticbeanstalk.com/grid/index/bundles", location.ToString()));
         //StartCoroutine(PostGetFile("http://localhost:5000/grid/index/bundles", location.ToString()));
 
         PopulateWorld(JSON.Parse(File.ReadAllText(Application.persistentDataPath + "/" + loc + ".json")));
@@ -261,7 +261,7 @@ public class updater : MonoBehaviour
         if (request.downloadHandler.data != null)
         {
             SaveBundles(request.downloadHandler.data);
-            StartCoroutine(PostGetBlock("http://kowloon-env.eba-hc3agzzc.us-east-2.elasticbeanstalk.com//grid/index", bodyJsonString));
+            StartCoroutine(PostGetBlock("http://kowloon-env.eba-hc3agzzc.us-east-2.elasticbeanstalk.com/grid/index", bodyJsonString));
             //StartCoroutine(PostGetBlock("http://localhost:5000/grid/index", bodyJsonString));
         }
     }
