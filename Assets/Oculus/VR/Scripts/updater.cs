@@ -25,6 +25,9 @@ public class updater : MonoBehaviour
     private CharacterController cc;
     private string storageDir;
 
+    private string metadataPath;
+    private JSONNode metadata;
+
     private Dictionary<string, string> baseBundles = new Dictionary<string, string>
         {
             { "cyberpunk1", "Cyberpunk/" },
@@ -54,6 +57,8 @@ public class updater : MonoBehaviour
 
         btn = controlsButton.GetComponent<Button>();
         btn.onClick.AddListener(showControls);
+
+        metadataPath = Application.persistentDataPath + "/metadata.json";
 
         DownloadObjectsAtBlock();
     }
@@ -119,29 +124,26 @@ public class updater : MonoBehaviour
         }
         files["delete"] = rightHandGrabber.filesToDelete;
 
-        //StartCoroutine(Post("http://kowloon.us-east-2.elasticbeanstalk.com/transactions/new/unsigned", files.ToString()));
+        StartCoroutine(MultipartPost("http://kowloon-env.eba-hc3agzzc.us-east-2.elasticbeanstalk.com//transactions/new/unsigned", files.ToString(), bundles));
         //StartCoroutine(Post("http://localhost:5000/transactions/new/unsigned", files.ToString()));
-        StartCoroutine(MultipartPost("http://localhost:5000/transactions/new/unsigned", files.ToString(), bundles));
+        //StartCoroutine(MultipartPost("http://localhost:5000/transactions/new/unsigned", files.ToString(), bundles));
     }
 
     public void DownloadObjectsAtBlock()
     {
         Vector3 pos = player.transform.position;
-        string metadataPath = Application.persistentDataPath + "/metadata.json";
         string loc = "[" + Math.Truncate(pos[0] / 100) + ", " + Math.Truncate(pos[1] / 100) + ", " + Math.Truncate(pos[2] / 100) + "]";
 
         if (!File.Exists(metadataPath))
             File.WriteAllText(metadataPath, JSON.Parse("{}").ToString());
 
-        var metadata = JSON.Parse(File.ReadAllText(metadataPath));
+        metadata = JSON.Parse(File.ReadAllText(metadataPath));
         if (metadata[loc] == null)
             metadata[loc] = 0;
 
         var location = JSON.Parse("{index: " + loc + ", time: " + metadata[loc] + "}");
-        //StartCoroutine(Post("http://kowloon.us-east-2.elasticbeanstalk.com/grid/index", location.ToString()));
-        StartCoroutine(Post("http://localhost:5000/grid/index/bundles", location.ToString()));
-        metadata[loc] = DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond;
-        File.WriteAllText(metadataPath, metadata.ToString());
+        StartCoroutine(PostGetFile("http://kowloon-env.eba-hc3agzzc.us-east-2.elasticbeanstalk.com//grid/index/bundles", location.ToString()));
+        //StartCoroutine(PostGetFile("http://localhost:5000/grid/index/bundles", location.ToString()));
 
         PopulateWorld(JSON.Parse(File.ReadAllText(Application.persistentDataPath + "/" + loc + ".json")));
     }
@@ -232,24 +234,21 @@ public class updater : MonoBehaviour
     IEnumerator MultipartPost(string url, string bodyJsonString, List<(byte[], string)> bundles)
     {
         List<IMultipartFormSection> formData = new List<IMultipartFormSection>();
-        Debug.Log(bundles.Count);
         foreach ((byte[], string) bundle in bundles)
         {
-            Debug.Log(bundle.Item2);
             formData.Add(new MultipartFormFileSection(bundle.Item2, bundle.Item1, bundle.Item2, null));
         }
         formData.Add(new MultipartFormDataSection(bodyJsonString));
-        Debug.Log(formData.Count);
 
         var request = UnityWebRequest.Post(url, formData);
         //request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
         yield return request.SendWebRequest();
         var response = JSON.Parse(request.downloadHandler.text);
-        Debug.Log(request);
+        Debug.Log(request.responseCode);
         Debug.Log(response);
     }
 
-    IEnumerator Post(string url, string bodyJsonString)
+    IEnumerator PostGetFile(string url, string bodyJsonString)
     {
         var request = new UnityWebRequest(url, "POST");
         byte[] bodyRaw = Encoding.UTF8.GetBytes(bodyJsonString);
@@ -262,14 +261,32 @@ public class updater : MonoBehaviour
         if (request.downloadHandler.data != null)
         {
             SaveBundles(request.downloadHandler.data);
+            StartCoroutine(PostGetBlock("http://kowloon-env.eba-hc3agzzc.us-east-2.elasticbeanstalk.com//grid/index", bodyJsonString));
+            //StartCoroutine(PostGetBlock("http://localhost:5000/grid/index", bodyJsonString));
+        }
+    }
 
-            /*
-            PopulateWorld(block, response.FileContents);
+    IEnumerator PostGetBlock(string url, string bodyJsonString)
+    {
+        var request = new UnityWebRequest(url, "POST");
+        byte[] bodyRaw = Encoding.UTF8.GetBytes(bodyJsonString);
+        request.uploadHandler = (UploadHandler)new UploadHandlerRaw(bodyRaw);
+        request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
+        request.SetRequestHeader("Content-Type", "application/json");
+        yield return request.SendWebRequest();
+        Debug.Log(request.responseCode);
+        var response = JSON.Parse(request.downloadHandler.text);
+
+        if (response != null)
+        {
+            PopulateWorld(response["block"]);
 
             Vector3 pos = player.transform.position;
             string loc = "[" + Math.Truncate(pos[0] / 100) + ", " + Math.Truncate(pos[1] / 100) + ", " + Math.Truncate(pos[2] / 100) + "]";
-            File.WriteAllText(Application.persistentDataPath + "/" + loc + ".json", block.ToString());
-            */
+            File.WriteAllText(Application.persistentDataPath + "/" + loc + ".json", response["block"].ToString());
+
+            metadata[loc] = DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond;
+            File.WriteAllText(metadataPath, metadata.ToString());
         }
     }
 
