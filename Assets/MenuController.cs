@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,7 +8,7 @@ public class MenuController : MonoBehaviour
 {
     private Button[] buttons;
     private int activeIndex = 0;
-    private long changedTime = 0;
+    private volatile bool canRepeat = true;
 
     public Canvas canvas;
 
@@ -25,19 +26,27 @@ public class MenuController : MonoBehaviour
         if (canvas.enabled)
         {
             Vector2 inp = OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick);
-            if (Mathf.Abs(inp[1]) > Mathf.Abs(inp[0]) && System.DateTime.Now.Ticks - changedTime > 10000000)
+            if (Mathf.Abs(inp[1]) > Mathf.Abs(inp[0]) && canRepeat)
             {
-                changedTime = System.DateTime.Now.Ticks;
+                canRepeat = !canRepeat;
+                StartCoroutine(WaitAndRepeat());
                 if (inp[1] > 0)
-                    activeIndex = (activeIndex + 1) % buttons.Length;
+                    activeIndex = Mathf.Min(activeIndex + 1, buttons.Length - 1);
                 else
-                    activeIndex = (((activeIndex - 1) % buttons.Length) + buttons.Length) % buttons.Length;
+                    activeIndex = Mathf.Max(activeIndex - 1, 0);
 
                 buttons[activeIndex].Select();
             }
 
+            buttons[activeIndex].Select();
             if (OVRInput.GetUp(OVRInput.RawButton.X))
                 buttons[activeIndex].GetComponent<Button>().onClick.Invoke();
         }
+    }
+
+    IEnumerator WaitAndRepeat()
+    {
+        yield return new WaitForSeconds(0.2f);
+        this.canRepeat = true;
     }
 }
