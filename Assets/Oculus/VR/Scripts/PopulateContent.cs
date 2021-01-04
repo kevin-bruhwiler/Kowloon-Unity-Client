@@ -31,7 +31,7 @@ public class PopulateContent : MonoBehaviour
 	GameObject changedElem = null;
 
 	private Object[] items;
-	private string[] menus = new string[8] { "Polygons", "Lights", "Foliage", "Roads", "Street Props", "Cyberpunk", "Utopian", "Custom Prefabs" };
+	private string[] menus = new string[8] { "Fantasy", "Lights", "Foliage", "Roads", "Street Props", "Cyberpunk", "Utopian", "Custom Prefabs" };
 	private int idx = 0;
 	private int row = 0;
 	private int resourcesSize = 0;
@@ -59,6 +59,11 @@ public class PopulateContent : MonoBehaviour
         {
 			//Grab object from UI - replace with duplicate
 			newObj = (GameObject)Instantiate(changedElem, changedElem.transform, true);
+			FilepathStorer fps = newObj.GetComponent<FilepathStorer>();
+			FilepathStorer old_fps = changedElem.GetComponent<FilepathStorer>();
+			fps.SetFilepath(old_fps.GetFilepath());
+			fps.SetFilename(old_fps.GetFilename());
+			fps.SetPrefabName(old_fps.GetPrefabName());
 			newObj.transform.parent = transform;
 
 			elements[elements.FindIndex(ind => ind.Equals(changedElem))] = newObj;
@@ -157,7 +162,7 @@ public class PopulateContent : MonoBehaviour
 		var MySize = newObj.GetComponent<Collider>().bounds.size;
 		var MaxSize = 1 / Mathf.Max(MySize.x, Mathf.Max(MySize.y, MySize.z));
 		if (MaxSize <= 0 || MaxSize == float.PositiveInfinity)
-			MaxSize = 0.001f;
+			MaxSize = 0.0001f;
 
 		newObj.transform.localScale = objScale * new Vector3(MaxSize, MaxSize, MaxSize);
 

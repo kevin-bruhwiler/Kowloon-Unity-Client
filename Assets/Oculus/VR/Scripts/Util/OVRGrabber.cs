@@ -162,8 +162,8 @@ public class OVRGrabber : MonoBehaviour
                     m_grabbedObjectRotOff.eulerAngles = m_grabbedObjectRotOff.eulerAngles + new Vector3(inp[0], 1 - (inp[0] - inp[1]), inp[1]);
                 else
                     //Move object
-                    m_grabbedObjectPosOff += new Vector3(0, 0, inp[1] * 0.02f * m_grabbedObj.transform.lossyScale.magnitude) + 
-                        transform.InverseTransformDirection(new Vector3(inp[0] * 0.02f * m_grabbedObj.transform.lossyScale.magnitude, 0, 0));
+                    m_grabbedObjectPosOff += new Vector3(0, 0, inp[1] * 0.05f * m_grabbedObj.transform.lossyScale.magnitude) + 
+                        transform.InverseTransformDirection(new Vector3(inp[0] * 0.05f * m_grabbedObj.transform.lossyScale.magnitude, 0, 0));
 
             if (OVRInput.Get(OVRInput.Button.Two))
                 m_grabbedObj.transform.localScale = m_grabbedObj.transform.localScale + new Vector3(0.02f, 0.02f, 0.02f);
