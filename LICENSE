@@ -1,21 +1,3 @@
-# Kowloon-Unity-Client
-
-Development version of a client for Kowloon, a shared virtual reality.
-
-The client pulls data from the Kowloon server running on AWS and stores it locally. Assets can also be added to (or removed from) Kowloon and uploaded to the server through the client, where they will be available to anyone else using the client.
-
-Multiplayer, user avatars, and many other features are planned for the near future.
-
-
-# Table of Contents
-1. [Installation](#install)
-2. [Contributing to Client Development](#contribute)
-3. [Adding/Removing Assets](#assets)
-4. [Frequently Asked Questions](#faq)
-5. [Licensing](#licensing)
-
-
-## Licensing
 MIT License
 
 Copyright (c) 2021 Kevin Bruhwiler
