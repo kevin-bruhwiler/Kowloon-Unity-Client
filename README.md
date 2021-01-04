@@ -4,15 +4,27 @@ Development version of a client for Kowloon, a shared virtual reality.
 
 The client pulls data from the Kowloon server running on AWS and stores it locally. Assets can also be added to (or removed from) Kowloon and uploaded to the server through the client, where they will be available to anyone else using the client.
 
-Multiplayer, user avatars, and many other features are planned for the near future.
+Currently developed for Oculus Rift, but support for other headsets, multiplayer, user avatars, and many other features are planned for the near future.
+If you encouter any issues installing or using this client, please create a new issue so that we can resolve it!
 
 
 # Table of Contents
-1. [Installation](#install)
+1. [Installation](#installation)
 2. [Contributing to Client Development](#contribute)
 3. [Adding/Removing Assets](#assets)
 4. [Frequently Asked Questions](#faq)
 5. [Licensing](#licensing)
+
+
+## Installation
+### To download the client
+The client executable can be downloaded here: https://drive.google.com/file/d/1BjHB_cVL1TxFUBqTsNd9M8vGSalauvsr/view?usp=sharing
+
+### To install the development version
+1. Clone this repository
+2. Open Unity Hub, in the "Projects" tab, click "Add"
+3. Select the "Kowloon-Unity-Client" folder
+4. Open up the project in Unity (currently developing with v.2019.4.16f1, other 2019 versions may work)
 
 
 ## Licensing
