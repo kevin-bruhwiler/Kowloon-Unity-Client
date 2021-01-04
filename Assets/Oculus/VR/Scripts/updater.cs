@@ -22,8 +22,12 @@ public class updater : MonoBehaviour
     public Canvas menu;
     public OVRGrabber rightHandGrabber;
     public Canvas controls;
+    public Canvas loadingInfo;
+
     private CharacterController cc;
     private string storageDir;
+    private string old_location;
+    private Text loadingText;
 
     private string metadataPath;
     private JSONNode metadata;
@@ -33,10 +37,10 @@ public class updater : MonoBehaviour
             { "cyberpunk1", "Cyberpunk/" },
             { "foliage1", "Foliage/" },
             { "light", "Lights/" },
-            { "polygon", "Polygons/" },
             { "road", "Roads/" },
             { "streetprops", "Street Props/"},
-            { "utopia", "Utopian/" }
+            { "utopia", "Utopian/" },
+            { "fantasy1", "Fantasy/" }
         };
 
     // Start is called before the first frame update
@@ -60,7 +64,12 @@ public class updater : MonoBehaviour
 
         metadataPath = Application.persistentDataPath + "/metadata.json";
 
+        loadingText = loadingInfo.GetComponent<Text>();
+        loadingInfo.enabled = false;
         DownloadObjectsAtBlock();
+
+        old_location = GetLocation();
+        InvokeRepeating("CheckLocation", 10.0f, 10.0f);
     }
 
     // Update is called once per frame
@@ -82,6 +91,16 @@ public class updater : MonoBehaviour
         }
     }
 
+    private void CheckLocation()
+    {
+        string loc = GetLocation();
+        if (loc != old_location)
+        {
+            old_location = loc;
+            DownloadObjectsAtBlock();
+        }
+    }
+
     void showControls()
     {
         controls.enabled = !controls.enabled;
@@ -95,7 +114,8 @@ public class updater : MonoBehaviour
         foreach (GameObject go in placedObjects)
         {
             FilepathStorer fps = go.GetComponent<FilepathStorer>();
-            go.tag = "Untagged";
+            if (fps == null)
+                continue;
             int id = go.GetInstanceID();
             var file = JSON.Parse("{}");
             file["filepath"] = fps.GetFilename();
@@ -121,6 +141,7 @@ public class updater : MonoBehaviour
             //file["bundle"] = f; //ByteArrayToString(f);
 
             files[""+id] = file;
+            go.tag = "Untagged";
         }
         files["delete"] = rightHandGrabber.filesToDelete;
 
@@ -129,10 +150,15 @@ public class updater : MonoBehaviour
         //StartCoroutine(MultipartPost("http://localhost:5000/transactions/new/unsigned", files.ToString(), bundles));
     }
 
-    public void DownloadObjectsAtBlock()
+    private string GetLocation()
     {
         Vector3 pos = player.transform.position;
-        string loc = "[" + Math.Truncate(pos[0] / 100) + ", " + Math.Truncate(pos[1] / 100) + ", " + Math.Truncate(pos[2] / 100) + "]";
+        return "[" + Math.Truncate(pos[0] / 500) + ", " + Math.Truncate(pos[1] / 500) + ", " + Math.Truncate(pos[2] / 500) + "]";
+    }
+
+    public void DownloadObjectsAtBlock()
+    {
+        string loc = GetLocation();
 
         if (!File.Exists(metadataPath))
             File.WriteAllText(metadataPath, JSON.Parse("{}").ToString());
@@ -160,9 +186,11 @@ public class updater : MonoBehaviour
                 {
                     if (baseBundles.ContainsKey(entry.FullName))
                     {
-                        entry.ExtractToFile(storageDir + baseBundles[entry.FullName] + entry.FullName);
+                        if (!File.Exists(storageDir + baseBundles[entry.FullName] + entry.FullName))
+                            entry.ExtractToFile(storageDir + baseBundles[entry.FullName] + entry.FullName);
                     }
-                    entry.ExtractToFile(storageDir + entry.FullName);
+                    if (!File.Exists(storageDir + entry.FullName))
+                        entry.ExtractToFile(storageDir + entry.FullName);
                 }
             }
             File.Delete(zipPath);
@@ -233,6 +261,10 @@ public class updater : MonoBehaviour
 
     IEnumerator MultipartPost(string url, string bodyJsonString, List<(byte[], string)> bundles)
     {
+        loadingInfo.enabled = true;
+        loadingText.text = "Uploading data for region " + GetLocation();
+        loadingText.color = Color.blue;
+
         List<IMultipartFormSection> formData = new List<IMultipartFormSection>();
         foreach ((byte[], string) bundle in bundles)
         {
@@ -246,10 +278,24 @@ public class updater : MonoBehaviour
         var response = JSON.Parse(request.downloadHandler.text);
         Debug.Log(request.responseCode);
         Debug.Log(response);
+        if (request.responseCode == 200)
+        {
+            loadingText.text = "Uploading successful!";
+            loadingText.color = Color.green;
+        } else
+        {
+            loadingText.text = "Uploading failed with error " + request.responseCode;
+            loadingText.color = Color.red;
+        }
+        StartCoroutine(ClearText());
     }
 
     IEnumerator PostGetFile(string url, string bodyJsonString)
     {
+        loadingInfo.enabled = true;
+        loadingText.text = "Downloading data for region " + GetLocation();
+        loadingText.color = Color.blue;
+
         var request = new UnityWebRequest(url, "POST");
         byte[] bodyRaw = Encoding.UTF8.GetBytes(bodyJsonString);
         request.uploadHandler = (UploadHandler)new UploadHandlerRaw(bodyRaw);
@@ -258,11 +304,16 @@ public class updater : MonoBehaviour
         yield return request.SendWebRequest();
         Debug.Log(request.responseCode);
 
-        if (request.downloadHandler.data != null)
+        if (request.responseCode == 200)
         {
             SaveBundles(request.downloadHandler.data);
             StartCoroutine(PostGetBlock("http://kowloon-env.eba-hc3agzzc.us-east-2.elasticbeanstalk.com/grid/index", bodyJsonString));
             //StartCoroutine(PostGetBlock("http://localhost:5000/grid/index", bodyJsonString));
+        } else
+        {
+            loadingText.text = "Downloading asset bundles failed with error " + request.responseCode;
+            loadingText.color = Color.red;
+            StartCoroutine(ClearText());
         }
     }
 
@@ -275,19 +326,26 @@ public class updater : MonoBehaviour
         request.SetRequestHeader("Content-Type", "application/json");
         yield return request.SendWebRequest();
         Debug.Log(request.responseCode);
-        var response = JSON.Parse(request.downloadHandler.text);
 
-        if (response != null)
+        if (request.responseCode == 200)
         {
+            var response = JSON.Parse(request.downloadHandler.text);
             PopulateWorld(response["block"]);
 
             Vector3 pos = player.transform.position;
-            string loc = "[" + Math.Truncate(pos[0] / 100) + ", " + Math.Truncate(pos[1] / 100) + ", " + Math.Truncate(pos[2] / 100) + "]";
+            string loc = "[" + Math.Truncate(pos[0] / 500) + ", " + Math.Truncate(pos[1] / 500) + ", " + Math.Truncate(pos[2] / 500) + "]";
             File.WriteAllText(Application.persistentDataPath + "/" + loc + ".json", response["block"].ToString());
 
             metadata[loc] = DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond;
             File.WriteAllText(metadataPath, metadata.ToString());
+            loadingText.text = "Downloading successful!";
+            loadingText.color = Color.green;
+        } else
+        {
+            loadingText.text = "Downloading region data failed with error " + request.responseCode;
+            loadingText.color = Color.red;
         }
+        StartCoroutine(ClearText());
     }
 
 
@@ -315,6 +373,12 @@ public class updater : MonoBehaviour
         for (int i = 0; i < NumberChars; i += 2)
             bytes[i / 2] = Convert.ToByte(hex.Substring(i, 2), 16);
         return bytes;
+    }
+
+    IEnumerator ClearText()
+    {
+        yield return new WaitForSeconds(4.0f);
+        loadingInfo.enabled = false;
     }
 
 }
