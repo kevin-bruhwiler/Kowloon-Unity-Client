@@ -12,7 +12,7 @@ public class MenuController : MonoBehaviour
 
     public Canvas canvas;
 
-    // Start is called before the first frame update
+    // Get all the buttons in the control menu
     void Start()
     {
         buttons = new Button[transform.childCount];
@@ -20,7 +20,9 @@ public class MenuController : MonoBehaviour
             buttons[i] = transform.GetChild(i).gameObject.GetComponent<Button>();
     }
 
-    // Update is called once per frame
+    // Only perform actions if the control menu is active
+    // Change the selected button using left thumbstick
+    // Activate selected button on X
     void Update()
     {
         if (canvas.enabled)
@@ -44,6 +46,7 @@ public class MenuController : MonoBehaviour
         }
     }
 
+    // Delay between switching between buttons
     IEnumerator WaitAndRepeat()
     {
         yield return new WaitForSeconds(0.2f);

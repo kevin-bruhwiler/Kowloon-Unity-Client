@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+// Scrolls the item menu - why is this not part of the PopulateContent.cs script? No idea.
 public class ScrollController : MonoBehaviour
 {
     public Canvas canvas;
@@ -12,16 +13,14 @@ public class ScrollController : MonoBehaviour
     private long tabChangeTime = 0;
 
 
-    // Start is called before the first frame update
     void Start()
     {
 
     }
 
-    // Update is called once per frame
     void Update()
     {
-        // Scroll with left dpad
+        // Scroll with up/down on the left dpad
         if(canvas != null && canvas.enabled && Mathf.Abs(OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick)[1]) > Mathf.Abs(OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick)[0]))
         {
             if (System.DateTime.Now.Ticks - tabChangeTime > 2000000)

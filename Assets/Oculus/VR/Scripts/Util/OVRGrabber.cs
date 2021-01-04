@@ -165,9 +165,11 @@ public class OVRGrabber : MonoBehaviour
                     m_grabbedObjectPosOff += new Vector3(0, 0, inp[1] * 0.05f * m_grabbedObj.transform.lossyScale.magnitude) + 
                         transform.InverseTransformDirection(new Vector3(inp[0] * 0.05f * m_grabbedObj.transform.lossyScale.magnitude, 0, 0));
 
+            //Increase object scale
             if (OVRInput.Get(OVRInput.Button.Two))
                 m_grabbedObj.transform.localScale = m_grabbedObj.transform.localScale + new Vector3(0.02f, 0.02f, 0.02f);
 
+            //Decrease object scale
             if (OVRInput.Get(OVRInput.Button.One))
                 m_grabbedObj.transform.localScale = m_grabbedObj.transform.localScale - new Vector3(0.02f, 0.02f, 0.02f);
 
@@ -175,6 +177,7 @@ public class OVRGrabber : MonoBehaviour
             if ((OVRInput.GetDown(OVRInput.Button.SecondaryThumbstick)) && UIText != null)
                 thumbStickHoldTimer = Time.timeSinceLevelLoad;
 
+            //Swap placement mode
             if ((OVRInput.GetUp(OVRInput.Button.SecondaryThumbstick)) && UIText != null && Time.timeSinceLevelLoad - thumbStickHoldTimer < 0.25f)
                 StartCoroutine(ShowMessage(0.5f));
         }
@@ -193,6 +196,7 @@ public class OVRGrabber : MonoBehaviour
             //Point at object to select/delete it
             if (OVRInput.Get(OVRInput.Axis1D.SecondaryHandTrigger) > 0 && OVRInput.Get(OVRInput.Axis1D.SecondaryIndexTrigger) == 0)
             {
+                //Determine which object is being pointed at and highlight it
                 RaycastHit hitPoint;
                 Ray ray = new Ray(rightHandAnchor.transform.position + rightHandAnchor.transform.TransformDirection(new Vector3(0.05f, 0, 0)), rightHandAnchor.transform.forward);
                 if (Physics.Raycast(ray, out hitPoint, Mathf.Infinity) && hitPoint.collider.gameObject.GetComponent<MeshRenderer>() != null && 
@@ -206,22 +210,27 @@ public class OVRGrabber : MonoBehaviour
                 }
                 if (currentlySelected != null)
                 {
+                    //Increase the "fill amount" on the deletion rainbow circle indicator thingy
                     if (!OVRInput.Get(OVRInput.Touch.Two) && !OVRInput.Get(OVRInput.Touch.One))
                         fillAmount += 0.02f;
                     else
                         fillAmount = 0.0f;
 
+                    //If the indicator is full
                     if (fillAmount >= 1)
                     {
+                        //If this object has not been placed this session, it must be added to the list of things that need to be removed from the server
                         if (currentlySelected.tag != "RecentlyPlaced")
                         {
                             FilepathStorer fps = currentlySelected.GetComponent<FilepathStorer>();
                             filesToDelete[fps.GetID()+","+ fps.GetFilepath()] = currentlySelected.transform.position;
                         } 
+                        //If it has been placed this session, remove the tag so it will not be uploaded
                         else
                         {
                             currentlySelected.tag = "Untagged";
                         }
+                        //Remove the object and reset
                         Object.Destroy(currentlySelected);
                         currentlySelected = null;
                         fillAmount = 0.0f;
@@ -237,6 +246,7 @@ public class OVRGrabber : MonoBehaviour
             {
                 fillAmount = 0.0f;
             }
+            //Haptic feedback to warn users they are deleting something
             if (fillAmount > 0)
                 OVRInput.SetControllerVibration(0.0001f, 0.2f, OVRInput.Controller.RTouch);
             else
@@ -435,6 +445,7 @@ public class OVRGrabber : MonoBehaviour
         }
     }
 
+    //Used to show when the placement mode has been changed
     private IEnumerator ShowMessage(float delay)
     {
         mode = (mode + 1) % modes.Length;
@@ -492,6 +503,7 @@ public class OVRGrabber : MonoBehaviour
         if(m_parentHeldObject) m_grabbedObj.transform.parent = null;
         SetPlayerIgnoreCollision(m_grabbedObj.gameObject, false);
 
+        //Depending on the placement mode, alter the collider, gravity, and kinematicicity of the object
         if (mode == 0)
         {
             Destroy(m_grabbedObj.GetComponent<OVRGrabbable>());
@@ -504,6 +516,7 @@ public class OVRGrabber : MonoBehaviour
             m_grabbedObj.GetComponent<Rigidbody>().useGravity = true;
         }
         
+        //Objects that have been placed but not uploaded require the "RecentlyPlaced" tag so the client knows what objects to upload
         playerController.EnableRotation = true;
         m_grabbedObj.tag = "RecentlyPlaced";
         m_grabbedObj = null;
