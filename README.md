@@ -5,7 +5,7 @@ Development version of a client for Kowloon, a shared virtual reality.
 The client pulls data from the Kowloon server running on AWS and stores it locally. Assets can also be added to (or removed from) Kowloon and uploaded to the server through the client, where they will be available to anyone else using the client.
 
 Currently developed for Oculus Rift on Windows (other headsets/operating systems have not been tested), but support for other headsets, multiplayer, user avatars, and many other features are planned for the near future.
-If you encouter any issues installing or using this client, please create a new issue so that we can resolve it!
+If you encouter any issues installing or using this client please create a new issue here on github so that we can resolve it!
 
 
 # Table of Contents
