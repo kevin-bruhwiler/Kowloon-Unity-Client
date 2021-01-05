@@ -52,6 +52,22 @@ If there are no assets in the base bundles that can be used to build what you ha
 
 All user-made asset bundles are stored at the [Persistent Data Path](https://docs.unity3d.com/ScriptReference/Application-persistentDataPath.html), inside the "Kowloon-Client\LoadedAssetBundles" directory. Copy them (do not drag them, a version must remain in the "LoadedAssetBundles" directory) into the "Kowloon-Client\LoadedAssetBundles\Custom Prefabs" directory. They will then appear in-game in the "Custom Prefabs" tab of the item menu.
 
+### Creating Custom Bundles
+It is possible to create custom asset bundles and add them to Kowloon. The process of creating asset bundles can be found [here](https://docs.unity3d.com/Manual/AssetBundles-Workflow.html). If you're using the Kowloon-Unity-Client development version (which is recommended when creating custom assets) the CreateAssetBundles script will already be present. Custom asset bundles should be placed in the "Kowloon-Client\LoadedAssetBundles\Custom Prefabs" directory at the [Persistent Data Path](https://docs.unity3d.com/ScriptReference/Application-persistentDataPath.html), which will make all prefabs within the asset bundles available to be placed in-game.
+
+**Important Notes About Custom Asset Bundles**
+1. The server will not accept uploads greater than 20MB, consequently any asset bundle larger than 20MB cannot be uploaded.
+2. Each new asset bundle increases the time it takes users to download Kowloon, the space Kowloon requires on every user's system, and the cost (in $$) of operating the Kowloon server. Consider reducing the size of your custom asset bundles by:
+    * Using low resolution textures and simple meshes/animations
+    * Using mesh and animation compression
+    * Re-using textures within a bundle - especially useful when creating a bundle of many themed assets
+3. Scripts can be added to custom prefabs, but compiled code cannot. This means that any script must be compiled and built within the client (see the section on [Contributing to Client Development](#contributing) for details on how to adds cripts to the client). This may seem like a serious inconvenience but has several significant advantages:
+    * Updating a single script in the client will effectively update every prefab that uses it automatically
+    * Reusing scripts other users have added to their prefabs is easy, allowing for well-maintained common code
+    * All scripts will be vetted by the client developers before inclusion, so users can trust that no prefabs contain malicious scripts or scripts detrimental to  performance
+
+
+
 ## Licensing
 MIT License
 
