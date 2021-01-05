@@ -25,6 +25,7 @@ The client executable can be downloaded here: https://drive.google.com/file/d/1B
 2. Open Unity Hub, in the "Projects" tab, click "Add"
 3. Select the "Kowloon-Unity-Client" folder
 4. Open up the project in Unity (currently developing with v.2019.4.16f1, other 2019 versions may work)
+5. Open the scene named "Root"
 
 
 ## Contributing
