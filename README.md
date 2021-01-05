@@ -18,7 +18,7 @@ If you encouter any issues installing or using this client please create a new i
 
 ## Installation
 ### To download the client
-The client executable can be downloaded here: https://drive.google.com/file/d/1BjHB_cVL1TxFUBqTsNd9M8vGSalauvsr/view?usp=sharing
+The latest version of the client executable can be downloaded here: https://github.com/kevin-bruhwiler/Kowloon-Unity-Client/releases
 
 ### To install the development version
 1. Clone this repository
