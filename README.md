@@ -25,6 +25,7 @@ The client executable can be downloaded here: https://drive.google.com/file/d/1B
 2. Open Unity Hub, in the "Projects" tab, click "Add"
 3. Select the "Kowloon-Unity-Client" folder
 4. Open up the project in Unity (currently developing with v.2019.4.16f1, other 2019 versions may work)
+5. Open the scene named "Root"
 
 
 ## Contributing
@@ -54,6 +55,8 @@ All user-made asset bundles are stored at the [Persistent Data Path](https://doc
 
 ### Creating Custom Bundles
 It is possible to create custom asset bundles and add them to Kowloon. The process of creating asset bundles can be found [here](https://docs.unity3d.com/Manual/AssetBundles-Workflow.html). If you're using the Kowloon-Unity-Client development version (which is recommended when creating custom assets) the CreateAssetBundles script will already be present. Custom asset bundles should be placed in the "Kowloon-Client\LoadedAssetBundles\Custom Prefabs" directory at the [Persistent Data Path](https://docs.unity3d.com/ScriptReference/Application-persistentDataPath.html), which will make all prefabs within the asset bundles available to be placed in-game.
+
+Prefabs within custom asset bundles are expected to have some sort of collider, a kinematic rigidbody without gravity, and the OVRGrabbable script attached.
 
 **Important Notes About Custom Asset Bundles**
 1. Give your bundle an informative name so that other users who wish to make use of it can find it easily
