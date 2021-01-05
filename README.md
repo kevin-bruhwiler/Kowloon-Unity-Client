@@ -4,7 +4,7 @@ Development version of a client for Kowloon, a shared virtual reality.
 
 The client pulls data from the Kowloon server running on AWS and stores it locally. Assets can also be added to (or removed from) Kowloon and uploaded to the server through the client, where they will be available to anyone else using the client.
 
-Currently developed for Oculus Rift on Windows (other headsets/operating systems have not been tested), but support for other headsets, multiplayer, user avatars, and many other features are planned for the near future.
+Currently developed for Oculus Rift on Windows (other headsets/operating systems have not been tested), but support for other headsets, multiplayer, user avatars, persistent accounts, and many other features are planned for the near future.
 If you encouter any issues installing or using this client please create a new issue here on github so that we can resolve it!
 
 
@@ -40,7 +40,7 @@ NOTE: Be sure to merge the latest from "upstream" before making a pull request!
 
 
 ## Assets
-Assets are added to Kowloon through the VR client. A number of "base" asset bundles are included for easy use, however making use of bundles other users have created, or creating your own bundles, is possible. 
+Assets are added to Kowloon through the VR client. A number of "base" asset bundles are included for easy use, however creating your own bundles, or making use of bundles other users have created, is possible. 
 
 ### Using Base Bundles
 Adding assets from the "base" asset bundles is easy. Simply grab the desired prefab from one of the menus in the client and place it in the world. Once all of the desired assets have been placed select "Upload Changes" from the control menu in game. Other users will now see the placed objects in their versions of the client.
@@ -56,17 +56,30 @@ All user-made asset bundles are stored at the [Persistent Data Path](https://doc
 It is possible to create custom asset bundles and add them to Kowloon. The process of creating asset bundles can be found [here](https://docs.unity3d.com/Manual/AssetBundles-Workflow.html). If you're using the Kowloon-Unity-Client development version (which is recommended when creating custom assets) the CreateAssetBundles script will already be present. Custom asset bundles should be placed in the "Kowloon-Client\LoadedAssetBundles\Custom Prefabs" directory at the [Persistent Data Path](https://docs.unity3d.com/ScriptReference/Application-persistentDataPath.html), which will make all prefabs within the asset bundles available to be placed in-game.
 
 **Important Notes About Custom Asset Bundles**
-1. The server will not accept uploads greater than 20MB, consequently any asset bundle larger than 20MB cannot be uploaded.
-2. Each new asset bundle increases the time it takes users to download Kowloon, the space Kowloon requires on every user's system, and the cost (in $$) of operating the Kowloon server. Consider reducing the size of your custom asset bundles by:
+1. Give your bundle an informative name so that other users who wish to make use of it can find it easily
+2. Bundles with duplicate names *will not be uploaded*! Search inside the LoadedAssetBundles directory to make sure that no bundles with the same name already exist
+3. There is a small but non-zero chance that, due to AWS write limits, many users uploading bundles simultaneously will lead to some or all of them becoming corrupted. This is unlikely, but the risk is minimized with smaller bundles and less frequent uploads
+4. *Do not treat any uploads as final*. At present any user can remove any asset. Additionally, development will likely require wiping the server from time-to-time. Keep backups of all assets you create
+5. The server will not accept uploads greater than 20MB, consequently any asset bundle larger than 20MB cannot be uploaded
+6. Each new asset bundle increases the time it takes users to download Kowloon, the space Kowloon requires on every user's system, and the cost (in $$) of operating the Kowloon server. Consider reducing the size of your custom asset bundles by:
     * Using low resolution textures and simple meshes/animations
     * Using mesh and animation compression
     * Re-using textures within a bundle - especially useful when creating a bundle of many themed assets
-3. Scripts can be added to custom prefabs, but compiled code cannot. This means that any script must be compiled and built within the client (see the section on [Contributing to Client Development](#contributing) for details on how to adds cripts to the client). This may seem like a serious inconvenience but has several significant advantages:
+5. Scripts can be added to custom prefabs, but compiled code cannot. This means that any script must be compiled and built within the client (see the section on [Contributing to Client Development](#contributing) for details on how to adds scripts to the client). This may seem like a serious inconvenience but has several significant advantages:
     * Updating a single script in the client will effectively update every prefab that uses it automatically
     * Reusing scripts other users have added to their prefabs is easy, allowing for well-maintained common code
-    * All scripts will be vetted by the client developers before inclusion, so users can trust that no prefabs contain malicious scripts or scripts detrimental to  performance
+    * All scripts will be vetted by the client developers before inclusion, so users can trust that no prefabs contain malicious code, malware, or scripts detrimental to performance
 
 
+## FAQ
+* **My upload/download is failing with error code 429**
+    * The server limits the number of uploads and downloads from a client to three per hour, each (the client automatically downloads the latest updates on startup). In general this isn't an issue, at worst your world will be an hour out of date or you will need to wait for a while before uploading
+* **My upload is failing with error code 413**
+    * This means that the combined size of the asset bundles you are trying to upload is greater than 20MB, which is prohibited. Either upload assets from one bundle at a time or use a smaller bundle
+* **My upload is failing with error code 5\*\***
+    * This is a server issue. The most likely problem is that you are trying to build too far away from the spawn and the server has not yet allocated resources for that region. Regardless, please create an issue here with what you were trying to do, what the error code was, and any other information you deem necessary
+* **What other frequently asked questions should be answered here?**
+    * No idea. We'll find out. Writing an FAQ before any questions have been asked is hard :upside_down_face:
 
 ## Licensing
 MIT License
