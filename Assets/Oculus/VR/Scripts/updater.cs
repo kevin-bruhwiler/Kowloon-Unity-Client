@@ -223,6 +223,8 @@ public class updater : MonoBehaviour
     // Instantiate all the objects for a given block
     void PopulateWorld(JSONNode data)
     {
+        // Remove all populated items so that they are not duplicated
+        ClearPopulatedItems();
         if (!Directory.Exists(storageDir))
             Directory.CreateDirectory(storageDir);
         
@@ -250,6 +252,7 @@ public class updater : MonoBehaviour
                                 // Instantiate the prefab using its metadata
                                 var prefab = lab.LoadAsset<GameObject>(assetName);
                                 GameObject go = (GameObject)Instantiate(prefab, kvp.Value["position"], kvp.Value["rotation"]);
+                                go.tag = "Populated";
                                 go.transform.localScale = kvp.Value["scale"];
 
                                 FilepathStorer fps = go.AddComponent(typeof(FilepathStorer)) as FilepathStorer;
@@ -288,6 +291,14 @@ public class updater : MonoBehaviour
                 }
             }
         }
+    }
+
+    // Clear all the populated items
+    void ClearPopulatedItems()
+    {
+        GameObject[] populatedObjects = GameObject.FindGameObjectsWithTag("Populated");
+        foreach (GameObject go in populatedObjects)
+            Destroy(go);
     }
 
     // Send data to the server - asset bundles and block metadata
