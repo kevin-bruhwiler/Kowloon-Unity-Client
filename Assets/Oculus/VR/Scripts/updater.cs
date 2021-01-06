@@ -200,6 +200,8 @@ public class updater : MonoBehaviour
         {
             // All bundles are retrieved as a zipfile
             string zipPath = storageDir + "/temp.zip";
+            if (!System.IO.Directory.Exists(storageDir))
+                System.IO.Directory.CreateDirectory(storageDir);
             File.WriteAllBytes(zipPath, bundles);
             using (ZipArchive archive = ZipFile.OpenRead(zipPath))
             {
@@ -209,7 +211,11 @@ public class updater : MonoBehaviour
                     if (baseBundles.ContainsKey(entry.FullName))
                     {
                         if (!File.Exists(storageDir + baseBundles[entry.FullName] + entry.FullName))
+                        {
+                            if (!System.IO.Directory.Exists(storageDir + baseBundles[entry.FullName]))
+                                System.IO.Directory.CreateDirectory(storageDir + baseBundles[entry.FullName]);
                             entry.ExtractToFile(storageDir + baseBundles[entry.FullName] + entry.FullName);
+                        } 
                     }
                     if (!File.Exists(storageDir + entry.FullName))
                         entry.ExtractToFile(storageDir + entry.FullName);
