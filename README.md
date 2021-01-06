@@ -18,7 +18,7 @@ If you encouter any issues installing or using this client please create a new i
 
 ## Installation
 ### To download the client
-The client executable can be downloaded here: https://drive.google.com/file/d/1BjHB_cVL1TxFUBqTsNd9M8vGSalauvsr/view?usp=sharing
+The latest version of the client executable can be downloaded here: https://github.com/kevin-bruhwiler/Kowloon-Unity-Client/releases
 
 ### To install the development version
 1. Clone this repository
@@ -61,14 +61,13 @@ Prefabs within custom asset bundles are expected to have some sort of collider, 
 **Important Notes About Custom Asset Bundles**
 1. Give your bundle an informative name so that other users who wish to make use of it can find it easily
 2. Bundles with duplicate names *will not be uploaded*! Search inside the LoadedAssetBundles directory to make sure that no bundles with the same name already exist
-3. There is a small but non-zero chance that, due to AWS write limits, many users uploading bundles simultaneously will lead to some or all of them becoming corrupted. This is unlikely, but the risk is minimized with smaller bundles and less frequent uploads
-4. *Do not treat any uploads as final*. At present any user can remove any asset. Additionally, development will likely require wiping the server from time-to-time. Keep backups of all assets you create
-5. The server will not accept uploads greater than 20MB, consequently any asset bundle larger than 20MB cannot be uploaded
-6. Each new asset bundle increases the time it takes users to download Kowloon, the space Kowloon requires on every user's system, and the cost (in $$) of operating the Kowloon server. Consider reducing the size of your custom asset bundles by:
+3. *Do not treat any uploads as final*. At present any user can remove any asset. Additionally, development will likely require wiping the server from time-to-time. Keep backups of all assets you create
+4. The server will not accept uploads greater than 20MB, consequently any asset bundle larger than 20MB cannot be uploaded
+5. Each new asset bundle increases the time it takes users to download Kowloon, the space Kowloon requires on every user's system, and the cost (in $$) of operating the Kowloon server. Consider reducing the size of your custom asset bundles by:
     * Using low resolution textures and simple meshes/animations
     * Using mesh and animation compression
     * Re-using textures within a bundle - especially useful when creating a bundle of many themed assets
-5. Scripts can be added to custom prefabs, but compiled code cannot. This means that any script must be compiled and built within the client (see the section on [Contributing to Client Development](#contributing) for details on how to adds scripts to the client). This may seem like a serious inconvenience but has several significant advantages:
+6. Scripts can be added to custom prefabs, but compiled code cannot. This means that any script must be compiled and built within the client (see the section on [Contributing to Client Development](#contributing) for details on how to add scripts to the client). This may seem like a serious inconvenience but has several significant advantages:
     * Updating a single script in the client will effectively update every prefab that uses it automatically
     * Reusing scripts other users have added to their prefabs is easy, allowing for well-maintained common code
     * All scripts will be vetted by the client developers before inclusion, so users can trust that no prefabs contain malicious code, malware, or scripts detrimental to performance
