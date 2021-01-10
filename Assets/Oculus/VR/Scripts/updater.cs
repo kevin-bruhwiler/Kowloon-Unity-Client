@@ -232,6 +232,7 @@ public class updater : MonoBehaviour
                         var lab = AssetBundle.LoadFromFile(storageDir + entry.FullName);
                         if (lab == null)
                             File.Delete(storageDir + entry.FullName);
+                        lab.Unload(false);
                     }
                 }
             }
