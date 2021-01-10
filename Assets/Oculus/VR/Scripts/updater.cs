@@ -9,6 +9,13 @@ using UnityEngine.UI;
 using UnityEditor;
 using SimpleJSON;
 using System.IO.Compression;
+#if UNITY_ANDROID || UNITY_IOS || UNITY_TIZEN || UNITY_TVOS || UNITY_WEBGL || UNITY_WSA || UNITY_PS4 || UNITY_WII || UNITY_XBOXONE || UNITY_SWITCH
+#define DISABLESTEAMWORKS
+#endif
+
+#if !DISABLESTEAMWORKS
+using Steamworks;
+#endif
 
 // The updater class is reponsible for uploading/downloading data to and from the server
 public class updater : MonoBehaviour
@@ -73,6 +80,8 @@ public class updater : MonoBehaviour
         // Check occasionally to see if the user's location has changed
         old_location = GetLocation();
         InvokeRepeating("CheckLocation", 10.0f, 10.0f);
+
+        Debug.Log(SteamUser.GetSteamID());
     }
 
     // Update is called once per frame
@@ -218,7 +227,12 @@ public class updater : MonoBehaviour
                         } 
                     }
                     if (!File.Exists(storageDir + entry.FullName))
+                    {
                         entry.ExtractToFile(storageDir + entry.FullName);
+                        var lab = AssetBundle.LoadFromFile(storageDir + entry.FullName);
+                        if (lab == null)
+                            File.Delete(storageDir + entry.FullName);
+                    }
                 }
             }
             // Delete the retrieved zip file to save space
@@ -248,6 +262,8 @@ public class updater : MonoBehaviour
                             continue;
 
                         // Load the appropriate asset bundle
+                        if (!File.Exists(storageDir + kvp.Value["filepath"]))
+                            continue;
                         var lab = AssetBundle.LoadFromFile(storageDir + kvp.Value["filepath"]);
 
                         foreach (string assetName in lab.GetAllAssetNames())
