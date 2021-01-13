@@ -6,6 +6,7 @@ TagManager:
   tags:
   - RecentlyPlaced
   - Populated
+  - Unapproved
   layers:
   - Default
   - TransparentFX

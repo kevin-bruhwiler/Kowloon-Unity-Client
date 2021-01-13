@@ -86,12 +86,15 @@ public class OVRGrabber : MonoBehaviour
     private float thumbStickHoldTimer;
     public Text UIText;
     public Image deleteTimer;
-    private float fillAmount = 0.0f;
+    public Image addTimer;
+    private float dFillAmount = 0.0f;
+    private float aFillAmount = 0.0f;
 
     public JSONNode filesToDelete = JSON.Parse("{}");
 
     public GameObject rightHandAnchor;
     public Shader highlight;
+    public Shader baseShader;
     private GameObject currentlySelected;
     private Shader tempShader;
 
@@ -212,18 +215,29 @@ public class OVRGrabber : MonoBehaviour
                 {
                     //Increase the "fill amount" on the deletion rainbow circle indicator thingy
                     if (!OVRInput.Get(OVRInput.Touch.Two) && !OVRInput.Get(OVRInput.Touch.One))
-                        fillAmount += 0.02f;
+                    {
+                        dFillAmount += 0.02f;
+                        aFillAmount = 0.0f;
+                    } 
+                    else if (currentlySelected.tag == "Unapproved")
+                    {
+                        aFillAmount += 0.02f; // add a different icon
+                        dFillAmount = 0.0f;
+                    }
                     else
-                        fillAmount = 0.0f;
+                    {
+                        dFillAmount = 0.0f;
+                        aFillAmount = 0.0f;
+                    }
 
                     //If the indicator is full
-                    if (fillAmount >= 1)
+                    if (dFillAmount >= 1)
                     {
                         //If this object has not been placed this session, it must be added to the list of things that need to be removed from the server
                         if (currentlySelected.tag != "RecentlyPlaced")
                         {
                             FilepathStorer fps = currentlySelected.GetComponent<FilepathStorer>();
-                            filesToDelete[fps.GetID()+","+ fps.GetFilepath()] = currentlySelected.transform.position;
+                            filesToDelete[fps.GetID()+","+ fps.GetFilename()] = currentlySelected.transform.position;
                         } 
                         //If it has been placed this session, remove the tag so it will not be uploaded
                         else
@@ -233,10 +247,21 @@ public class OVRGrabber : MonoBehaviour
                         //Remove the object and reset
                         Object.Destroy(currentlySelected);
                         currentlySelected = null;
-                        fillAmount = 0.0f;
+                        dFillAmount = 0.0f;
+                    }
+                    if (aFillAmount >= 1)
+                    {
+                        FilepathStorer fps = currentlySelected.GetComponent<FilepathStorer>();
+                        filesToDelete[fps.GetID() + "," + fps.GetFilename()] = currentlySelected.transform.position;
+
+                        currentlySelected.tag = "RecentlyPlaced";
+                        currentlySelected.GetComponent<MeshRenderer>().material.shader = baseShader;
+                        currentlySelected = null;
+                        aFillAmount = 0.0f;
                     }
                 }
             }
+            //Reset shader when the user stops pointing
             else if (currentlySelected != null)
             {
                 currentlySelected.GetComponent<MeshRenderer>().material.shader = tempShader;
@@ -244,15 +269,17 @@ public class OVRGrabber : MonoBehaviour
             }
             else
             {
-                fillAmount = 0.0f;
+                aFillAmount = 0.0f;
+                dFillAmount = 0.0f;
             }
             //Haptic feedback to warn users they are deleting something
-            if (fillAmount > 0)
+            if (dFillAmount > 0 || aFillAmount > 0)
                 OVRInput.SetControllerVibration(0.0001f, 0.2f, OVRInput.Controller.RTouch);
             else
                 OVRInput.SetControllerVibration(0, 0, OVRInput.Controller.RTouch);
 
-            deleteTimer.fillAmount = fillAmount;
+            deleteTimer.fillAmount = dFillAmount;
+            addTimer.fillAmount = aFillAmount;
         }
     }
 

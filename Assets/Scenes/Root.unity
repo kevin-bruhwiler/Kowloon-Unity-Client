@@ -664,6 +664,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 544892175}
     - target: {fileID: 11477634, guid: ba1fa4a8c66106b4988c88fe4b8e8502, type: 3}
+      propertyPath: addTimer
+      value: 
+      objectReference: {fileID: 1404019844}
+    - target: {fileID: 11477634, guid: ba1fa4a8c66106b4988c88fe4b8e8502, type: 3}
       propertyPath: m_player
       value: 
       objectReference: {fileID: 595030076}
@@ -671,6 +675,10 @@ PrefabInstance:
       propertyPath: highlight
       value: 
       objectReference: {fileID: 15301, guid: 0000000000000000f000000000000000, type: 0}
+    - target: {fileID: 11477634, guid: ba1fa4a8c66106b4988c88fe4b8e8502, type: 3}
+      propertyPath: baseShader
+      value: 
+      objectReference: {fileID: 46, guid: 0000000000000000f000000000000000, type: 0}
     - target: {fileID: 11477634, guid: ba1fa4a8c66106b4988c88fe4b8e8502, type: 3}
       propertyPath: deleteTimer
       value: 
@@ -2526,6 +2534,7 @@ MonoBehaviour:
   rightHandGrabber: {fileID: 741234867}
   controls: {fileID: 1868041339}
   loadingInfo: {fileID: 790423962}
+  highlightUnapproved: {fileID: 4800000, guid: 15e919a41a30ba24680b7a25d48f1a0b, type: 3}
 --- !u!54 &1581404213
 Rigidbody:
   m_ObjectHideFlags: 0

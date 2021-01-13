@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
@@ -30,6 +31,7 @@ public class updater : MonoBehaviour
     public OVRGrabber rightHandGrabber;
     public Canvas controls;
     public Canvas loadingInfo;
+    public Shader highlightUnapproved;
 
     private CharacterController cc;
     private string storageDir;
@@ -80,8 +82,6 @@ public class updater : MonoBehaviour
         // Check occasionally to see if the user's location has changed
         old_location = GetLocation();
         InvokeRepeating("CheckLocation", 10.0f, 10.0f);
-
-        Debug.Log(SteamUser.GetSteamID());
     }
 
     // Update is called once per frame
@@ -153,24 +153,27 @@ public class updater : MonoBehaviour
                 file["convex"] = go.GetComponent<MeshCollider>().convex;
 
             byte[] f = File.ReadAllBytes(fps.GetFilepath());
-            
+
             //Copy bundle to storage dir so that it does not need to be redownloaded
-            File.WriteAllBytes(storageDir + fps.GetFilename(), f);
+            if (!File.Exists(storageDir + fps.GetFilename()))
+                File.WriteAllBytes(storageDir + fps.GetFilename(), f);
             // Add bytes from the appropriate asset bundle to the list of files that will be uploaded to the server
             bundles.Add((f, file["filepath"]));
 
             // id used to identify each different object in an upload
-            files[""+id] = file;
+            files["" + id] = file;
             // Untag the object to repeated uploads in the same session will not duplicate objects
             go.tag = "Untagged";
         }
         // Get information about all objects that have been deleted this session
         files["delete"] = rightHandGrabber.filesToDelete;
 
+        // Get user authentication ticket to identify user
+        files["ticket"] = GetTicket();
+
         // Send the data to the AWS instance
-        StartCoroutine(MultipartPost("http://kowloon-env.eba-hc3agzzc.us-east-2.elasticbeanstalk.com/transactions/new/unsigned", files.ToString(), bundles));
-        //StartCoroutine(Post("http://localhost:5000/transactions/new/unsigned", files.ToString()));
-        //StartCoroutine(MultipartPost("http://localhost:5000/transactions/new/unsigned", files.ToString(), bundles));
+        //StartCoroutine(MultipartPost("http://kowloon-env.eba-hc3agzzc.us-east-2.elasticbeanstalk.com/transactions/new/unsigned", files.ToString(), bundles));
+        StartCoroutine(MultipartPost("http://localhost:5000/transactions/new/unsigned", files.ToString(), bundles));
     }
 
     // Get the current location of the player
@@ -194,10 +197,10 @@ public class updater : MonoBehaviour
         if (metadata[loc] == null)
             metadata[loc] = 0;
 
-        var location = JSON.Parse("{index: " + loc + ", time: " + metadata[loc] + "}");
+        var location = JSON.Parse("{index: " + loc + ", time: " + metadata[loc] + ", ticket: " + GetTicket() + "}");
         // Send the user location and most recent download time to the server, to get any updates
-        StartCoroutine(PostGetFile("http://kowloon-env.eba-hc3agzzc.us-east-2.elasticbeanstalk.com/grid/index/bundles", location.ToString()));
-        //StartCoroutine(PostGetFile("http://localhost:5000/grid/index/bundles", location.ToString()));
+        //StartCoroutine(PostGetFile("http://kowloon-env.eba-hc3agzzc.us-east-2.elasticbeanstalk.com/grid/index/bundles", location.ToString()));
+        StartCoroutine(PostGetFile("http://localhost:5000/grid/index/bundles", location.ToString()));
 
         PopulateWorld(JSON.Parse(File.ReadAllText(Application.persistentDataPath + "/" + loc + ".json")));
     }
@@ -224,7 +227,7 @@ public class updater : MonoBehaviour
                             if (!System.IO.Directory.Exists(storageDir + baseBundles[entry.FullName]))
                                 System.IO.Directory.CreateDirectory(storageDir + baseBundles[entry.FullName]);
                             entry.ExtractToFile(storageDir + baseBundles[entry.FullName] + entry.FullName);
-                        } 
+                        }
                     }
                     if (!File.Exists(storageDir + entry.FullName))
                     {
@@ -248,69 +251,75 @@ public class updater : MonoBehaviour
         ClearPopulatedItems();
         if (!Directory.Exists(storageDir))
             Directory.CreateDirectory(storageDir);
-        
-        if(data != null)
+
+        if (data != null)
         {
             // Iterate all objects in the block's metadata
             for (int k = 0; k < data.Count; k++)
             {
-                foreach (JSONNode o in data[k].Children)
+                bool approved = data[k]["approved"];
+                foreach (KeyValuePair<string, JSONNode> kvp in JSON.Parse(data[k]["data"]))
                 {
-                    foreach (KeyValuePair<string, JSONNode> kvp in (JSONObject)JSON.Parse(o))
+                    // Ignore deleted objects
+                    if (kvp.Key == "delete")
+                        continue;
+
+                    // Load the appropriate asset bundle
+                    if (!File.Exists(storageDir + kvp.Value["filepath"]))
+                        continue;
+                    var lab = AssetBundle.LoadFromFile(storageDir + kvp.Value["filepath"]);
+
+                    foreach (string assetName in lab.GetAllAssetNames())
                     {
-                        // Ignore deleted objects
-                        if (kvp.Key == "delete")
-                            continue;
-
-                        // Load the appropriate asset bundle
-                        if (!File.Exists(storageDir + kvp.Value["filepath"]))
-                            continue;
-                        var lab = AssetBundle.LoadFromFile(storageDir + kvp.Value["filepath"]);
-
-                        foreach (string assetName in lab.GetAllAssetNames())
+                        // Load the specified prefab from the asset bundle (I think this for loop may be unnecessary)
+                        if (assetName == kvp.Value["prefabName"])
                         {
-                            // Load the specified prefab from the asset bundle (I think this for loop may be unnecessary)
-                            if (assetName == kvp.Value["prefabName"])
+                            // Instantiate the prefab using its metadata
+                            var prefab = lab.LoadAsset<GameObject>(assetName);
+                            GameObject go = (GameObject)Instantiate(prefab, kvp.Value["position"], kvp.Value["rotation"]);
+                            if (approved)
                             {
-                                // Instantiate the prefab using its metadata
-                                var prefab = lab.LoadAsset<GameObject>(assetName);
-                                GameObject go = (GameObject)Instantiate(prefab, kvp.Value["position"], kvp.Value["rotation"]);
                                 go.tag = "Populated";
-                                go.transform.localScale = kvp.Value["scale"];
-
-                                FilepathStorer fps = go.AddComponent(typeof(FilepathStorer)) as FilepathStorer;
-                                fps.SetFilepath(kvp.Value["filepath"]);
-                                fps.SetID(kvp.Key);
-
-                                if (kvp.Value["rigidbody"])
-                                {
-                                    Rigidbody rb = go.GetComponent<Rigidbody>();
-                                    rb.useGravity = kvp.Value["gravity"];
-                                    rb.isKinematic = kvp.Value["kinematic"];
-                                }
-                                else
-                                {
-                                    Destroy(go.GetComponent<Rigidbody>());
-                                }
-                                if (kvp.Value["meshcollider"])
-                                {
-                                    MeshCollider mc = go.GetComponent<MeshCollider>();
-                                    mc.convex = kvp.Value["convex"];
-                                }
-                                else
-                                {
-                                    Destroy(go.GetComponent<MeshCollider>());
-                                }
-                                if (!kvp.Value["grabbable"])
-                                    Destroy(go.GetComponent<OVRGrabbable>());
                             }
-                        }
+                            else
+                            {
+                                go.tag = "Unapproved";
+                                go.GetComponent<MeshRenderer>().material.shader = highlightUnapproved;
+                            }
+                            go.transform.localScale = kvp.Value["scale"];
 
-                        // Free the resources used by the loaded asset bundle
-                        lab.Unload(false);
+                            FilepathStorer fps = go.AddComponent(typeof(FilepathStorer)) as FilepathStorer;
+                            fps.SetFilepath(storageDir + kvp.Value["filepath"]);
+                            fps.SetFilename(kvp.Value["filepath"]);
+                            fps.SetPrefabName(kvp.Value["prefabName"]);
+                            fps.SetID(kvp.Key);
+
+                            if (kvp.Value["rigidbody"])
+                            {
+                                Rigidbody rb = go.GetComponent<Rigidbody>();
+                                rb.useGravity = kvp.Value["gravity"];
+                                rb.isKinematic = kvp.Value["kinematic"];
+                            }
+                            else
+                            {
+                                Destroy(go.GetComponent<Rigidbody>());
+                            }
+                            if (kvp.Value["meshcollider"])
+                            {
+                                MeshCollider mc = go.GetComponent<MeshCollider>();
+                                mc.convex = kvp.Value["convex"];
+                            }
+                            else
+                            {
+                                Destroy(go.GetComponent<MeshCollider>());
+                            }
+                            if (!kvp.Value["grabbable"])
+                                Destroy(go.GetComponent<OVRGrabbable>());
+                        }
                     }
 
-                    break;
+                    // Free the resources used by the loaded asset bundle
+                    lab.Unload(false);
                 }
             }
         }
@@ -320,6 +329,10 @@ public class updater : MonoBehaviour
     void ClearPopulatedItems()
     {
         GameObject[] populatedObjects = GameObject.FindGameObjectsWithTag("Populated");
+        foreach (GameObject go in populatedObjects)
+            Destroy(go);
+
+        populatedObjects = GameObject.FindGameObjectsWithTag("Unapproved");
         foreach (GameObject go in populatedObjects)
             Destroy(go);
     }
@@ -353,7 +366,8 @@ public class updater : MonoBehaviour
         {
             loadingText.text = "Uploading successful!";
             loadingText.color = Color.green;
-        } else
+        }
+        else
         {
             loadingText.text = "Uploading failed with error " + request.responseCode;
             loadingText.color = Color.red;
@@ -381,9 +395,10 @@ public class updater : MonoBehaviour
         {
             // If the request is successful, save the retrieved bundles and request the metadata
             SaveBundles(request.downloadHandler.data);
-            StartCoroutine(PostGetBlock("http://kowloon-env.eba-hc3agzzc.us-east-2.elasticbeanstalk.com/grid/index", bodyJsonString));
-            //StartCoroutine(PostGetBlock("http://localhost:5000/grid/index", bodyJsonString));
-        } else
+            //StartCoroutine(PostGetBlock("http://kowloon-env.eba-hc3agzzc.us-east-2.elasticbeanstalk.com/grid/index", bodyJsonString));
+            StartCoroutine(PostGetBlock("http://localhost:5000/grid/index", bodyJsonString));
+        }
+        else
         {
             loadingText.text = "Downloading asset bundles failed with error " + request.responseCode;
             loadingText.color = Color.red;
@@ -418,7 +433,8 @@ public class updater : MonoBehaviour
             File.WriteAllText(metadataPath, metadata.ToString());
             loadingText.text = "Downloading successful!";
             loadingText.color = Color.green;
-        } else
+        }
+        else
         {
             loadingText.text = "Downloading region data failed with error " + request.responseCode;
             loadingText.color = Color.red;
@@ -431,6 +447,28 @@ public class updater : MonoBehaviour
     {
         yield return new WaitForSeconds(4.0f);
         loadingInfo.enabled = false;
+    }
+
+    string GetTicket()
+    {
+        return ByteArrayToString(new byte[8]);
+        if (SteamManager.Initialized)
+        {
+            byte[] ticket = new byte[2048];
+            uint ticketLength;
+            SteamUser.GetAuthSessionTicket(ticket, ticket.Length, out ticketLength);
+            return ByteArrayToString(ticket.Take((int)ticketLength).ToArray());
+        }
+        return ByteArrayToString(new byte[8]);
+    }
+
+    // Used for sending auth tickets
+    static string ByteArrayToString(byte[] ba)
+    {
+        StringBuilder hex = new StringBuilder(ba.Length * 2);
+        foreach (byte b in ba)
+            hex.AppendFormat("{0:x2}", b);
+        return hex.ToString();
     }
 
 }
