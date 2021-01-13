@@ -156,9 +156,11 @@ public class updater : MonoBehaviour
 
             //Copy bundle to storage dir so that it does not need to be redownloaded
             if (!File.Exists(storageDir + fps.GetFilename()))
+            {
                 File.WriteAllBytes(storageDir + fps.GetFilename(), f);
-            // Add bytes from the appropriate asset bundle to the list of files that will be uploaded to the server
-            bundles.Add((f, file["filepath"]));
+                // Add bytes from the appropriate asset bundle to the list of files that will be uploaded to the server
+                bundles.Add((f, file["filepath"]));
+            }
 
             // id used to identify each different object in an upload
             files["" + id] = file;
@@ -172,8 +174,8 @@ public class updater : MonoBehaviour
         files["ticket"] = GetTicket();
 
         // Send the data to the AWS instance
-        //StartCoroutine(MultipartPost("http://kowloon-env.eba-hc3agzzc.us-east-2.elasticbeanstalk.com/transactions/new/unsigned", files.ToString(), bundles));
-        StartCoroutine(MultipartPost("http://localhost:5000/transactions/new/unsigned", files.ToString(), bundles));
+        StartCoroutine(MultipartPost("http://kowloon-env.eba-hc3agzzc.us-east-2.elasticbeanstalk.com/transactions/new/unsigned", files.ToString(), bundles));
+        //StartCoroutine(MultipartPost("http://localhost:5000/transactions/new/unsigned", files.ToString(), bundles));
     }
 
     // Get the current location of the player
@@ -199,8 +201,8 @@ public class updater : MonoBehaviour
 
         var location = JSON.Parse("{index: " + loc + ", time: " + metadata[loc] + ", ticket: " + GetTicket() + "}");
         // Send the user location and most recent download time to the server, to get any updates
-        //StartCoroutine(PostGetFile("http://kowloon-env.eba-hc3agzzc.us-east-2.elasticbeanstalk.com/grid/index/bundles", location.ToString()));
-        StartCoroutine(PostGetFile("http://localhost:5000/grid/index/bundles", location.ToString()));
+        StartCoroutine(PostGetFile("http://kowloon-env.eba-hc3agzzc.us-east-2.elasticbeanstalk.com/grid/index/bundles", location.ToString()));
+        //StartCoroutine(PostGetFile("http://localhost:5000/grid/index/bundles", location.ToString()));
 
         PopulateWorld(JSON.Parse(File.ReadAllText(Application.persistentDataPath + "/" + loc + ".json")));
     }
@@ -395,8 +397,8 @@ public class updater : MonoBehaviour
         {
             // If the request is successful, save the retrieved bundles and request the metadata
             SaveBundles(request.downloadHandler.data);
-            //StartCoroutine(PostGetBlock("http://kowloon-env.eba-hc3agzzc.us-east-2.elasticbeanstalk.com/grid/index", bodyJsonString));
-            StartCoroutine(PostGetBlock("http://localhost:5000/grid/index", bodyJsonString));
+            StartCoroutine(PostGetBlock("http://kowloon-env.eba-hc3agzzc.us-east-2.elasticbeanstalk.com/grid/index", bodyJsonString));
+            //StartCoroutine(PostGetBlock("http://localhost:5000/grid/index", bodyJsonString));
         }
         else
         {
@@ -451,7 +453,6 @@ public class updater : MonoBehaviour
 
     string GetTicket()
     {
-        return ByteArrayToString(new byte[8]);
         if (SteamManager.Initialized)
         {
             byte[] ticket = new byte[2048];
