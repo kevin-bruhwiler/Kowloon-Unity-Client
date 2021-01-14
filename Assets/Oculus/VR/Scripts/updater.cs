@@ -68,10 +68,10 @@ public class updater : MonoBehaviour
         btn.onClick.AddListener(UploadRecentlyPlacedObjects);
 
         btn = quitButton.GetComponent<Button>();
-        btn.onClick.AddListener(Application.Quit);
+        btn.onClick.AddListener(QuitGame);
 
         btn = controlsButton.GetComponent<Button>();
-        btn.onClick.AddListener(showControls);
+        btn.onClick.AddListener(ShowControls);
 
         metadataPath = Application.persistentDataPath + "/metadata.json";
 
@@ -104,6 +104,14 @@ public class updater : MonoBehaviour
         }
     }
 
+    // Exits game (only if menu is active)
+    private void QuitGame()
+    {
+        if (!menu.enabled)
+            return;
+        Application.Quit();
+    }
+
     // Check to see if the user's location has changed, if so download objects for the new location
     private void CheckLocation()
     {
@@ -116,14 +124,19 @@ public class updater : MonoBehaviour
     }
 
     // Display/hide the controls image
-    void showControls()
+    void ShowControls()
     {
+        if (!menu.enabled)
+            return;
         controls.enabled = !controls.enabled;
     }
 
     // Send all objects placed this session to the server, along with their associated asset bundles
     void UploadRecentlyPlacedObjects()
     {
+        if (!menu.enabled)
+            return;
+
         GameObject[] placedObjects = GameObject.FindGameObjectsWithTag("RecentlyPlaced");
         List<(byte[], string)> bundles = new List<(byte[], string)>();
         var files = JSON.Parse("{}");
@@ -174,8 +187,8 @@ public class updater : MonoBehaviour
         files["ticket"] = GetTicket();
 
         // Send the data to the AWS instance
-        StartCoroutine(MultipartPost("http://kowloon-env.eba-hc3agzzc.us-east-2.elasticbeanstalk.com/transactions/new/unsigned", files.ToString(), bundles));
-        //StartCoroutine(MultipartPost("http://localhost:5000/transactions/new/unsigned", files.ToString(), bundles));
+        //StartCoroutine(MultipartPost("http://kowloon-env.eba-hc3agzzc.us-east-2.elasticbeanstalk.com/transactions/new/unsigned", files.ToString(), bundles));
+        StartCoroutine(MultipartPost("http://localhost:5000/transactions/new/unsigned", files.ToString(), bundles));
     }
 
     // Get the current location of the player
@@ -201,8 +214,8 @@ public class updater : MonoBehaviour
 
         var location = JSON.Parse("{index: " + loc + ", time: " + metadata[loc] + ", ticket: " + GetTicket() + "}");
         // Send the user location and most recent download time to the server, to get any updates
-        StartCoroutine(PostGetFile("http://kowloon-env.eba-hc3agzzc.us-east-2.elasticbeanstalk.com/grid/index/bundles", location.ToString()));
-        //StartCoroutine(PostGetFile("http://localhost:5000/grid/index/bundles", location.ToString()));
+        //StartCoroutine(PostGetFile("http://kowloon-env.eba-hc3agzzc.us-east-2.elasticbeanstalk.com/grid/index/bundles", location.ToString()));
+        StartCoroutine(PostGetFile("http://localhost:5000/grid/index/bundles", location.ToString()));
 
         PopulateWorld(JSON.Parse(File.ReadAllText(Application.persistentDataPath + "/" + loc + ".json")));
     }
@@ -397,8 +410,8 @@ public class updater : MonoBehaviour
         {
             // If the request is successful, save the retrieved bundles and request the metadata
             SaveBundles(request.downloadHandler.data);
-            StartCoroutine(PostGetBlock("http://kowloon-env.eba-hc3agzzc.us-east-2.elasticbeanstalk.com/grid/index", bodyJsonString));
-            //StartCoroutine(PostGetBlock("http://localhost:5000/grid/index", bodyJsonString));
+            //StartCoroutine(PostGetBlock("http://kowloon-env.eba-hc3agzzc.us-east-2.elasticbeanstalk.com/grid/index", bodyJsonString));
+            StartCoroutine(PostGetBlock("http://localhost:5000/grid/index", bodyJsonString));
         }
         else
         {

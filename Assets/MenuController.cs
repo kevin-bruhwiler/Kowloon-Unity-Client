@@ -18,6 +18,8 @@ public class MenuController : MonoBehaviour
         buttons = new Button[transform.childCount];
         for (int i = 0; i < transform.childCount; i++)
             buttons[i] = transform.GetChild(i).gameObject.GetComponent<Button>();
+        activeIndex = buttons.Length - 1;
+        buttons[activeIndex].Select();
     }
 
     // Only perform actions if the control menu is active
@@ -39,10 +41,6 @@ public class MenuController : MonoBehaviour
 
                 buttons[activeIndex].Select();
             }
-
-            buttons[activeIndex].Select();
-            if (OVRInput.GetUp(OVRInput.RawButton.X))
-                buttons[activeIndex].GetComponent<Button>().onClick.Invoke();
         }
     }
 
