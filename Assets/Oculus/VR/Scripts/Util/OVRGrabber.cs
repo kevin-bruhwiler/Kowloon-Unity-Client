@@ -81,9 +81,27 @@ public class OVRGrabber : MonoBehaviour
     protected Quaternion m_grabbedObjectRotOff;
 	protected Dictionary<OVRGrabbable, int> m_grabCandidates = new Dictionary<OVRGrabbable, int>();
 	protected bool m_operatingWithoutOVRCameraRig = true;
-    private int mode = 0;
-    private string[] modes = new string[3] { "Static Mode", "Semi-Static Mode", "Physics Mode" };
+
+    private int placementMode = 0;
+    private string[] placementModes = new string[3] { "Static Mode", "Semi-Static Mode", "Physics Mode" };
+    private int movementMode = 0;
+    private string[] movementModes = new string[3] { "Free", "Upright", "Snap" };
     private float thumbStickHoldTimer;
+    private float snapTimer;
+    private Vector3[,] possibleRotations = new Vector3[24,3] { { Vector3.up, Vector3.right, Vector3.forward }, { Vector3.right, Vector3.up, Vector3.forward },
+                                                              { Vector3.right, Vector3.forward, Vector3.up }, { Vector3.up, Vector3.forward, Vector3.right },
+                                                              { Vector3.forward, Vector3.right, Vector3.up }, { Vector3.forward, Vector3.up, Vector3.right },
+                                                              { Vector3.up, Vector3.right, -Vector3.forward }, { Vector3.right, Vector3.up, -Vector3.forward },
+                                                              { Vector3.right, -Vector3.forward, Vector3.up }, { Vector3.up, -Vector3.forward, Vector3.right },
+                                                              { -Vector3.forward, Vector3.right, Vector3.up }, { -Vector3.forward, Vector3.up, Vector3.right },
+                                                              { -Vector3.up, Vector3.right, Vector3.forward }, { Vector3.right, -Vector3.up, Vector3.forward },
+                                                              { Vector3.right, Vector3.forward, -Vector3.up }, { -Vector3.up, Vector3.forward, Vector3.right },
+                                                              { Vector3.forward, Vector3.right, -Vector3.up }, { Vector3.forward, -Vector3.up, Vector3.right },
+                                                              { Vector3.up, -Vector3.right, Vector3.forward }, { -Vector3.right, Vector3.up, Vector3.forward },
+                                                              { -Vector3.right, Vector3.forward, Vector3.up }, { Vector3.up, Vector3.forward, -Vector3.right },
+                                                              { Vector3.forward, -Vector3.right, Vector3.up }, { Vector3.forward, Vector3.up, -Vector3.right }};
+    private int rotationIx = 0;
+    private Vector3 desiredDirection = Vector3.up;
     public Text UIText;
     public Image deleteTimer;
     public Image addTimer;
@@ -152,6 +170,11 @@ public class OVRGrabber : MonoBehaviour
             UIText.enabled = false;
     }
 
+    float Round(float i, float v)
+    {
+        return Mathf.Round(i / v) * v;
+    }
+
     virtual public void Update()
     {
         alreadyUpdated = false;
@@ -160,29 +183,88 @@ public class OVRGrabber : MonoBehaviour
         {
             Vector2 inp = OVRInput.Get(OVRInput.Axis2D.SecondaryThumbstick);
             if (inp.magnitude != 0)
+            {
                 if (OVRInput.Get(OVRInput.Button.SecondaryThumbstick))
+                {
                     //Rotate object
-                    m_grabbedObjectRotOff.eulerAngles = m_grabbedObjectRotOff.eulerAngles + new Vector3(inp[0], 1 - (inp[0] - inp[1]), inp[1]);
+                    if (movementMode == 0)
+                        m_grabbedObjectRotOff.eulerAngles = m_grabbedObjectRotOff.eulerAngles + new Vector3(0, inp[0], inp[1]);
+                    else if (movementMode == 1)
+                    {
+                        if (Mathf.Abs(inp[0]) > 0.5 &&  Mathf.Abs(inp[1]) > 0.5)
+                        {
+                            if (Mathf.Sign(inp[0]) > 0 && Mathf.Sign(inp[1]) > 0)
+                                desiredDirection = Vector3.forward;
+                            else if (Mathf.Sign(inp[0]) < 0 && Mathf.Sign(inp[1]) < 0)
+                                desiredDirection = -Vector3.forward;
+                        }
+                        else if (Mathf.Abs(inp[0]) > Mathf.Abs(inp[1]))
+                        {
+                            if (Mathf.Sign(inp[0]) > 0)
+                                desiredDirection = Vector3.right;
+                            else
+                                desiredDirection = Vector3.left;
+                        }
+                        else
+                        {
+                            if (Mathf.Sign(inp[1]) > 0)
+                                desiredDirection = Vector3.up;
+                            else
+                                desiredDirection = Vector3.down;
+                        }
+                    }
+                    else if (movementMode == 2 && Time.timeSinceLevelLoad - snapTimer > 0.5)
+                    {
+                        rotationIx = (((rotationIx + (int)Mathf.Sign(inp[1])) % possibleRotations.GetLength(0)) + possibleRotations.GetLength(0)) % possibleRotations.GetLength(0);
+                        snapTimer = Time.timeSinceLevelLoad;
+                    }
+                }
                 else
+                {
                     //Move object
-                    m_grabbedObjectPosOff += new Vector3(0, 0, inp[1] * 0.05f * m_grabbedObj.transform.lossyScale.magnitude) + 
-                        transform.InverseTransformDirection(new Vector3(inp[0] * 0.05f * m_grabbedObj.transform.lossyScale.magnitude, 0, 0));
+                    if (movementMode == 0 || movementMode == 1)
+                    {
+                        m_grabbedObjectPosOff += (transform.up * -inp[0] + transform.forward * inp[1]) * 0.05f * m_grabbedObj.transform.lossyScale.magnitude;
+                    }
+                    else if (movementMode == 2 && Time.timeSinceLevelLoad - snapTimer > 0.25)
+                    {
+                        //Vector3 m_s = m_grabbedObj.GetComponent<Renderer>().bounds.size;
+                        m_grabbedObjectPosOff += new Vector3(0.4f * 0, 0.4f * Mathf.Sign(inp[0]), 0.4f * Mathf.Sign(inp[1]));
+                        snapTimer = Time.timeSinceLevelLoad;
+                    }
+                }
+                    
+            }
 
             //Increase object scale
-            if (OVRInput.Get(OVRInput.Button.Two))
+            if (movementMode == 2 && OVRInput.Get(OVRInput.Button.Two) && Time.timeSinceLevelLoad - snapTimer > 0.75)
+            {
+                m_grabbedObj.transform.localScale = m_grabbedObj.transform.localScale + new Vector3(0.1f, 0.1f, 0.1f);
+                snapTimer = Time.timeSinceLevelLoad;
+            }
+            else if (OVRInput.Get(OVRInput.Button.Two) && movementMode != 2)
                 m_grabbedObj.transform.localScale = m_grabbedObj.transform.localScale + new Vector3(0.02f, 0.02f, 0.02f);
 
             //Decrease object scale
-            if (OVRInput.Get(OVRInput.Button.One))
-                m_grabbedObj.transform.localScale = m_grabbedObj.transform.localScale - new Vector3(0.02f, 0.02f, 0.02f);
+            if (movementMode == 2 && OVRInput.Get(OVRInput.Button.One) && Time.timeSinceLevelLoad - snapTimer > 0.75)
+            {
+                m_grabbedObj.transform.localScale = Vector3.Max(m_grabbedObj.transform.localScale - new Vector3(0.1f, 0.1f, 0.1f), new Vector3(0.02f, 0.02f, 0.02f));
+                snapTimer = Time.timeSinceLevelLoad;
+            }
+            else if (OVRInput.Get(OVRInput.Button.One) && movementMode != 2)
+                m_grabbedObj.transform.localScale = Vector3.Max(m_grabbedObj.transform.localScale - new Vector3(0.02f, 0.02f, 0.02f), new Vector3(0.02f, 0.02f, 0.02f));
 
             //Don't change the mode if the thumbstick is being held down
-            if ((OVRInput.GetDown(OVRInput.Button.SecondaryThumbstick)) && UIText != null)
+            if ((OVRInput.GetDown(OVRInput.Button.SecondaryThumbstick) || OVRInput.GetDown(OVRInput.Button.PrimaryThumbstick)) && UIText != null)
                 thumbStickHoldTimer = Time.timeSinceLevelLoad;
 
             //Swap placement mode
             if ((OVRInput.GetUp(OVRInput.Button.SecondaryThumbstick)) && UIText != null && Time.timeSinceLevelLoad - thumbStickHoldTimer < 0.25f)
-                StartCoroutine(ShowMessage(0.5f));
+                StartCoroutine(ShowMessage(0.5f, true));
+
+            //Swap movement mode
+            if ((OVRInput.GetUp(OVRInput.Button.PrimaryThumbstick)) && UIText != null && Time.timeSinceLevelLoad - thumbStickHoldTimer < 0.25f)
+                StartCoroutine(ShowMessage(0.5f, false));
         }
 
         if (gameObject.name == "CustomHandRight")
@@ -473,10 +555,21 @@ public class OVRGrabber : MonoBehaviour
     }
 
     //Used to show when the placement mode has been changed
-    private IEnumerator ShowMessage(float delay)
+    private IEnumerator ShowMessage(float delay, bool placement)
     {
-        mode = (mode + 1) % modes.Length;
-        UIText.text = modes[mode];
+        if (placement)
+        {
+            placementMode = (placementMode + 1) % placementModes.Length;
+            UIText.text = placementModes[placementMode];
+            UIText.color = Color.blue;
+        }
+        else
+        {
+            movementMode = (movementMode + 1) % movementModes.Length;
+            UIText.text = movementModes[movementMode];
+            UIText.color = Color.red;
+        }
+        
         UIText.enabled = true;
         yield return new WaitForSeconds(delay);
         UIText.enabled = false;
@@ -490,10 +583,11 @@ public class OVRGrabber : MonoBehaviour
         }
 
         Rigidbody grabbedRigidbody = m_grabbedObj.grabbedRigidbody;
+
         Quaternion grabbableRotation = rot * m_grabbedObjectRotOff;
         Vector3 grabbablePosition = pos + rot * m_grabbedObjectPosOff;
 
-        if (forceTeleport)
+        if (true) //forceTeleport)
         {
             grabbedRigidbody.transform.position = grabbablePosition;
             grabbedRigidbody.transform.rotation = grabbableRotation;
@@ -502,6 +596,30 @@ public class OVRGrabber : MonoBehaviour
         {
             grabbedRigidbody.MovePosition(grabbablePosition);
             grabbedRigidbody.MoveRotation(grabbableRotation);
+        }
+        // Set upright
+        if (movementMode == 1)
+        {
+            Quaternion q = Quaternion.FromToRotation(grabbedRigidbody.transform.up, desiredDirection) * grabbedRigidbody.transform.rotation;
+            grabbedRigidbody.transform.rotation = q; //Quaternion.Slerp(grabbedRigidbody.transform.rotation, q, 1f);
+        } 
+        // Snap to invisible grid
+        else if (movementMode == 2)
+        {
+            Quaternion q = Quaternion.FromToRotation(grabbedRigidbody.transform.up, possibleRotations[rotationIx, 0]) * grabbedRigidbody.transform.rotation;
+            grabbedRigidbody.transform.rotation = q;
+
+            q = Quaternion.FromToRotation(grabbedRigidbody.transform.right, possibleRotations[rotationIx, 1]) * grabbedRigidbody.transform.rotation;
+            grabbedRigidbody.transform.rotation = q;
+
+            q = Quaternion.FromToRotation(grabbedRigidbody.transform.forward, possibleRotations[rotationIx, 2]) * grabbedRigidbody.transform.rotation;
+            grabbedRigidbody.transform.rotation = q;
+
+            //Vector3 m_s = m_grabbedObj.GetComponent<Collider>().bounds.extents;
+            float approxScale = grabbedRigidbody.transform.lossyScale.magnitude;
+            grabbedRigidbody.transform.position = new Vector3(Round(grabbedRigidbody.transform.position.x, 2f * approxScale),
+                                                    Round(grabbedRigidbody.transform.position.y, 2f * approxScale),
+                                                    Round(grabbedRigidbody.transform.position.z, 2f * approxScale));
         }
     }
 
@@ -531,13 +649,13 @@ public class OVRGrabber : MonoBehaviour
         SetPlayerIgnoreCollision(m_grabbedObj.gameObject, false);
 
         //Depending on the placement mode, alter the collider, gravity, and kinematicicity of the object
-        if (mode == 0)
+        if (placementMode == 0)
         {
             Destroy(m_grabbedObj.GetComponent<OVRGrabbable>());
             Destroy(m_grabbedObj.GetComponent<Rigidbody>());
             if (m_grabbedObj.GetComponent<MeshCollider>() != null && m_grabbedObj.GetComponent<MeshCollider>().sharedMesh.isReadable)
                 m_grabbedObj.GetComponent<MeshCollider>().convex = false;
-        } else if (mode == 2)
+        } else if (placementMode == 2)
         {
             m_grabbedObj.GetComponent<Rigidbody>().isKinematic = false;
             m_grabbedObj.GetComponent<Rigidbody>().useGravity = true;
