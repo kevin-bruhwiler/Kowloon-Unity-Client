@@ -637,6 +637,7 @@ public class OVRGrabber : MonoBehaviour
 
             GrabbableRelease(linearVelocity, angularVelocity);
         }
+        playerController.EnableRotation = true;
 
         // Re-enable grab volumes to allow overlap events
         GrabVolumeEnable(true);

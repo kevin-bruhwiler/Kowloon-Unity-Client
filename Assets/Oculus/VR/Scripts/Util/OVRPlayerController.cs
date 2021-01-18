@@ -452,7 +452,7 @@ public class OVRPlayerController : MonoBehaviour
 									   Vector3.right);
 		}
 
-		if (EnableRotation && !ui.enabled)
+		if (EnableRotation)
 		{
 			Vector3 euler = transform.rotation.eulerAngles;
 			float rotateInfluence = SimulationRate * Time.deltaTime * RotationAmount * RotationScaleMultiplier;
