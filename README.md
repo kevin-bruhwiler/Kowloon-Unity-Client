@@ -59,14 +59,14 @@ Prefabs within custom asset bundles are expected to have some sort of collider, 
 **Important Notes About Custom Asset Bundles**
 1. Give your bundle an informative name so that other users who wish to make use of it can find it easily
 2. Bundles with duplicate names *will not be uploaded*! Search inside the LoadedAssetBundles directory to make sure that no bundles with the same name already exist
-3. *Do not treat any uploads as final*. Development will likely require wiping the server from time-to-time. Keep backups of all assets you create
+3. *Do not treat any uploads as final*. Development may require wiping the server from time-to-time, although this will be avoided as much as possible. Keep backups of all assets you create just in case
 4. It is possible that the upload will fail if assets from many new bundles are uploaded simultaneously, depending on the size of the bundles in question.
 5. The server will not accept uploads greater than 20MB, consequently any asset bundle larger than 20MB cannot be uploaded (and because uploads contain additional data, asset bundles slightly smaller than 20MB may also fail).
 6. Each new asset bundle increases the time it takes users to download Kowloon, the space Kowloon requires on every user's system, and the cost (in $$) of operating the Kowloon server. Consider reducing the size of your custom asset bundles by:
     * Using low resolution textures and simple meshes/animations
     * Using mesh and animation compression
     * Re-using textures within a bundle - especially useful when creating a bundle of many themed assets
-7. Scripts can be added to custom prefabs, but compiled code cannot. This means that any script must be compiled and built within the client (see the section on [Contributing to Client Development](#contributing) for details on how to add scripts to the client). This may seem like a serious inconvenience but has several significant advantages:
+7. Scripts can be added to custom prefabs, but compiled code cannot. This means that any script must be compiled and built within the client (see the section on [Contributing to Client Development](#contributing) for details on how to add scripts to the client). This may seem like an inconvenience but has several significant advantages:
     * Updating a single script in the client will effectively update every prefab that uses it
     * Reusing scripts other users have added to their prefabs is easy, allowing for well-maintained common code
     * All scripts will be vetted by the client developers before inclusion, so users can trust that no prefabs contain malicious code, malware, or scripts detrimental to performance
@@ -80,9 +80,9 @@ Prefabs within custom asset bundles are expected to have some sort of collider, 
 * **My upload is failing with error code 5\*\***
     * This is a server issue. The most likely problem is that you are trying to build too far away from the spawn and the server has not yet allocated resources for that region. Regardless, please create an issue here with what you were trying to do, what the error code was, and any other information you deem necessary
 * **After reloading the client I don't see any of the changes I just made**
-    * Kowloon is moderated, and all additions must be approved before they will be visible. Additionally, the server may take a few minutes to propagate changes, so even moderator approved additions may not be instantly visible to all users.
+    * Kowloon is moderated, and all additions must be approved before they will be visible. Additionally, the server may take a few minutes to propagate changes, so even moderator approved additions may not be instantly visible to all users
 * **Objects I remove keep reappearing**
-    * Only moderators can remove objects once they've been uploaded. If you identify an object that you would like removed, please contact a moderator.
+    * Only moderators can remove objects once they've been uploaded. If you identify an object that you would like removed, please contact a moderator
 * **What other frequently asked questions should be answered here?**
     * No idea. We'll find out. Writing an FAQ before any questions have been asked is hard :upside_down_face:
 
