@@ -138,6 +138,7 @@ public class OVRPlayerController : MonoBehaviour
 	/// </summary>
 	public Canvas ui;
 	public Canvas menu;
+	public Canvas controls;
 	public PopulateContent uiContents;
 	public updater up;
 	private Vector3 lastPosition;
@@ -452,7 +453,7 @@ public class OVRPlayerController : MonoBehaviour
 									   Vector3.right);
 		}
 
-		if (EnableRotation)
+		if (EnableRotation && !controls.enabled)
 		{
 			Vector3 euler = transform.rotation.eulerAngles;
 			float rotateInfluence = SimulationRate * Time.deltaTime * RotationAmount * RotationScaleMultiplier;
