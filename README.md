@@ -15,6 +15,12 @@ If you encouter any issues installing or using this client please create a new i
 4. [Frequently Asked Questions](#faq)
 5. [Licensing](#licensing)
 
+![plot](./Screenshots/Screenshot_1.png)
+
+![plot](./Screenshots/Screenshot_2.png)
+
+![plot](./Screenshots/Screenshot_3.png)
+
 
 ## Installation
 ### To download the client
