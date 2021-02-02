@@ -107,6 +107,8 @@ public class OVRGrabber : MonoBehaviour
     public Image addTimer;
     private float dFillAmount = 0.0f;
     private float aFillAmount = 0.0f;
+    private float currentlySelectedTimer = 0.0f;
+    private bool pointDelay = false;
 
     public JSONNode filesToDelete = JSON.Parse("{}");
 
@@ -224,12 +226,12 @@ public class OVRGrabber : MonoBehaviour
                     //Move object
                     if (movementMode == 0 || movementMode == 1)
                     {
-                        m_grabbedObjectPosOff += (transform.up * -inp[0] + transform.forward * inp[1]) * 0.05f * m_grabbedObj.transform.lossyScale.magnitude;
+                        m_grabbedObjectPosOff += (transform.up * -inp[0] + transform.forward * inp[1]) * 0.02f * m_grabbedObj.transform.lossyScale.magnitude;
                     }
                     else if (movementMode == 2 && Time.timeSinceLevelLoad - snapTimer > 0.25)
                     {
                         //Vector3 m_s = m_grabbedObj.GetComponent<Renderer>().bounds.size;
-                        m_grabbedObjectPosOff += new Vector3(0.4f * 0, 0.4f * Mathf.Sign(inp[0]), 0.4f * Mathf.Sign(inp[1]));
+                        m_grabbedObjectPosOff += new Vector3(0.2f * 0, 0.2f * Mathf.Sign(inp[0]), 0.2f * Mathf.Sign(inp[1]));
                         snapTimer = Time.timeSinceLevelLoad;
                     }
                 }
@@ -270,7 +272,8 @@ public class OVRGrabber : MonoBehaviour
         if (gameObject.name == "CustomHandRight")
         {
             //Grab selected object
-            if (currentlySelected != null && OVRInput.Get(OVRInput.Axis1D.SecondaryHandTrigger) > 0 && OVRInput.Get(OVRInput.Axis1D.SecondaryIndexTrigger) > 0)
+            if (currentlySelected != null && OVRInput.Get(OVRInput.Axis1D.SecondaryHandTrigger) > 0 && OVRInput.Get(OVRInput.Axis1D.SecondaryIndexTrigger) > 0 &&
+                Time.timeSinceLevelLoad - currentlySelectedTimer > 1.0f)
             {
                 m_grabbedObj = currentlySelected.GetComponent<OVRGrabbable>();
                 m_grabbedObj.GrabBegin(this, currentlySelected.GetComponent<Collider>());
@@ -290,6 +293,7 @@ public class OVRGrabber : MonoBehaviour
                     if (currentlySelected != null)
                         currentlySelected.GetComponent<MeshRenderer>().material.shader = tempShader;
                     currentlySelected = hitPoint.collider.gameObject;
+                    currentlySelectedTimer = Time.timeSinceLevelLoad;
                     tempShader = currentlySelected.GetComponent<MeshRenderer>().material.shader;
                     currentlySelected.GetComponent<MeshRenderer>().material.shader = highlight;
                 }
@@ -298,12 +302,12 @@ public class OVRGrabber : MonoBehaviour
                     //Increase the "fill amount" on the deletion rainbow circle indicator thingy
                     if (!OVRInput.Get(OVRInput.Touch.Two) && !OVRInput.Get(OVRInput.Touch.One))
                     {
-                        dFillAmount += 0.02f;
+                        dFillAmount += 0.015f;
                         aFillAmount = 0.0f;
                     } 
                     else if (currentlySelected.tag == "Unapproved")
                     {
-                        aFillAmount += 0.02f; // add a different icon
+                        aFillAmount += 0.015f; // add a different icon
                         dFillAmount = 0.0f;
                     }
                     else
@@ -363,6 +367,12 @@ public class OVRGrabber : MonoBehaviour
             deleteTimer.fillAmount = dFillAmount;
             addTimer.fillAmount = aFillAmount;
         }
+    }
+
+    IEnumerator Wait(float duration)
+    {
+        yield return new WaitForSeconds(duration);
+        pointDelay = true;
     }
 
     virtual public void FixedUpdate()
