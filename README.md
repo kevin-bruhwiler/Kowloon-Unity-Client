@@ -1,6 +1,7 @@
 # Kowloon-Unity-Client
 
 Development version of a client for Kowloon, a shared virtual reality.
+Download the executable in the zipfile here! https://github.com/kevin-bruhwiler/Kowloon-Unity-Client/releases/tag/v0.3-alpha
 
 The client pulls data from the Kowloon server running on AWS and stores it locally. Assets can also be added to (or removed from) Kowloon and uploaded to the server through the client, where they will be available to anyone else using the client.
 
