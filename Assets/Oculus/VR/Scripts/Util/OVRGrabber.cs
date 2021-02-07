@@ -223,6 +223,7 @@ public class OVRGrabber : MonoBehaviour
                 }
                 else
                 {
+                    Vector3 dir = m_player.transform.up * -inp[0] + m_player.transform.forward * inp[1];
                     //Move object
                     if (movementMode == 0 || movementMode == 1)
                     {
@@ -231,7 +232,7 @@ public class OVRGrabber : MonoBehaviour
                     else if (movementMode == 2 && Time.timeSinceLevelLoad - snapTimer > 0.25)
                     {
                         //Vector3 m_s = m_grabbedObj.GetComponent<Renderer>().bounds.size;
-                        m_grabbedObjectPosOff += new Vector3(0.2f * 0, 0.2f * Mathf.Sign(inp[0]), 0.2f * Mathf.Sign(inp[1]));
+                        m_grabbedObjectPosOff += Vector3.Normalize((transform.up * -inp[0] + transform.forward * inp[1])); //new Vector3(0.2f * Mathf.Sign(dir[0]), 0.2f * Mathf.Sign(dir[1]), 0.2f * Mathf.Sign(dir[2]));
                         snapTimer = Time.timeSinceLevelLoad;
                     }
                 }
